@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/item_download_file"
+        android:icon="@drawable/ic_file_download_black_24px"
+        android:title="@string/title_download_file"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/item_open_file"
+        android:icon="@drawable/ic_folder_black_24px"
+        android:title="@string/title_open_file"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/item_settings"
+        android:icon="@drawable/ic_app_settings_black_24px"
+        android:title="@string/title_app_settings"/>
+
+</menu>

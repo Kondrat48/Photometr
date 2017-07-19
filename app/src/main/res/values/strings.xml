@@ -1,0 +1,76 @@
+<resources>
+    <string name="app_name">Фотометр</string>
+    <string name="title_watch">Просмотр</string>
+    <string name="title_document_settings">Параметры</string>
+    <string name="title_print">Печать</string>
+    <string name="title_open_file">Открыть файл</string>
+    <string name="title_download_file">Загрузить файл с устройства</string>
+    <string name="title_app_settings">Настройки</string>
+    <string name="title_back_button">Назад</string>
+    <string name="hint_agriculture_name">Название хозяйства</string>
+    <string name="hint_field_number">Номер поля</string>
+    <string name="hint_crop">Культура</string>
+    <string name="hint_field_area">Площадь поля</string>
+    <string name="hint_predecessor">Предшественник</string>
+    <string name="hint_element_nitrogen" translatable="false">N</string>
+    <string name="hint_element_phosphorus_pentoxide" translatable="false">P2O5</string>
+    <string name="kg_at_ha">кг/га</string>
+    <string name="hint_element_potassium_oxide" translatable="false">K2O</string>
+    <string name="hint_element_gypsum">Гипс</string>
+    <string name="hint_element_sulfur" translatable="false">S</string>
+    <string name="hint_element_chalk">Известь</string>
+    <string name="hint_element_manure">Навоз</string>
+    <string name="ha">га</string>
+    <string name="hint_note">Примечание</string>
+    <string name="text_top_dressing">Подкормка</string>
+    <string name="text_sowing_fertilization">Припосевное внесение удобрений</string>
+    <string name="text_before_sowing_fertilization">Предпосевное внесение удобрений</string>
+    <string name="text_main_application_of_fertilizers">Основное внесение удобрений</string>
+    <string name="text_soil_analysis">Анализ грунта(мг/кг)</string>
+    <string name="cell_text_ph">Ph</string>
+    <string name="cell_text_gumus">Гумус</string>
+    <string name="cell_text_n">N</string>
+    <string name="cell_text_p">P</string>
+    <string name="cell_text_k">K</string>
+    <string name="cell_text_s">S</string>
+    <string name="cell_text_ca">Ca</string>
+    <string name="cell_text_mg">Mg</string>
+    <string name="cell_text_b">B</string>
+    <string name="cell_text_cu">Cu</string>
+    <string name="cell_text_zn">Zn</string>
+    <string name="cell_text_mn">Mn</string>
+    <string name="cell_text_fe">Fe</string>
+    <string name="cell_text_mo">Mo</string>
+    <string name="cell_text_j">J</string>
+    <string name="cell_text_top_dressin1">Подкормка 1</string>
+    <string name="cell_text_top_dressin2">Подкормка 2</string>
+    <string name="cell_text_top_dressin3">Подкормка 3</string>
+    <string name="cell_text_top_dressin4">Подкормка 4</string>
+    <string name="gr_on_ha">гр/га</string>
+    <string name="cell_text_control_1">K1 - контроль</string>
+    <string name="cell_text_nitrogen">N - азот</string>
+    <string name="cell_text_phosphor">P - фосфор</string>
+    <string name="cell_text_ks">KS - сульфат калия</string>
+    <string name="cell_text_kcl">KCl - хлорид калия</string>
+    <string name="cell_text_control_2">K2 - контроль</string>
+    <string name="cell_text_calc">Ca - кальций</string>
+    <string name="cell_text_magn">Mg - магний</string>
+    <string name="cell_text_bor">B - бор</string>
+    <string name="cell_text_cuprum">Cu - медь</string>
+    <string name="cell_text_control_3">K3 - контроль</string>
+    <string name="cell_text_zink">Zn - цинк</string>
+    <string name="cell_text_mangan">Mn - марганец</string>
+    <string name="cell_text_ferum">Fe - железо</string>
+    <string name="k4cell_text_control_4">K4 - контроль</string>
+    <string name="cell_text_mon">Mo - молибден</string>
+    <string name="cell_text_cobalt">Co - кобальт</string>
+    <string name="cell_text_jod">J - йод</string>
+    <string name="cell_text_control_5">K5 - контроль</string>
+    <string name="cell_text_element">Элемент</string>
+    <string name="cell_text_chenges">Изм.</string>
+    <string name="cell_text_db">ДВ</string>
+    <string name="clean_button">Отмена</string>
+    <string name="save_button">Сохронить</string>
+    <string name="cell_text_co">Co</string>
+    <string name="default_company_info">Товариство з обмеженою відповідальністю \'\'АПК-ГРУП\'\'\nУкраїна, 07400, м.Бровари, вул.Грушевського, 7, к.338\nтел. (044) 331 21 50\nmlab@apk-group.com.ua\nwww.agrovector.com.ua\nКонсультаційна лінія: 0 800 505 110</string>
+</resources>
