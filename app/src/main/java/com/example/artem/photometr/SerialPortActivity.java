@@ -14,7 +14,7 @@
  * limitations under the License. 
  */
 
-package android_serialport_api.sample;
+package com.example.artem.photometr;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +26,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
-import android_serialport_api.SerialPort;
 
 public abstract class SerialPortActivity extends Activity {
 

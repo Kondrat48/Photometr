@@ -14,7 +14,7 @@
  * limitations under the License. 
  */
 
-package android_serialport_api;
+package com.example.artem.photometr;
 
 import java.io.File;
 import java.io.FileDescriptor;

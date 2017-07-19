@@ -14,7 +14,7 @@
  * limitations under the License. 
  */
 
-package android_serialport_api.sample;
+package com.example.artem.photometr;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +22,6 @@ import java.security.InvalidParameterException;
 
 
 import android.content.SharedPreferences;
-import android_serialport_api.SerialPort;
-import android_serialport_api.SerialPortFinder;
 
 public class Application extends android.app.Application {
 

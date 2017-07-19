@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager vpPager;
 
-    DBHelper dbHelper;
+    com.example.artem.photometr.DBHelper dbHelper;
 
     public String logo;
 
