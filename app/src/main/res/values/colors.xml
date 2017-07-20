@@ -8,5 +8,6 @@
     <color name="primary_dark_material_dark">#fafafa</color>
     <color name="image_background">#FFAAAAAA</color>
     <color name="transparent">#00000000</color>
-
+    <color name="rad">#F00000</color>
+    <color name="lime">#80D872</color>
 </resources>

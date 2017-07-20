@@ -36,11 +36,14 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.ScatterData;
 import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -72,26 +75,31 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_graph,container,false);
-
         mChart = new CombinedChart(getActivity());
-
-
         mChart.setDrawOrder(new DrawOrder[]{
                 DrawOrder.BAR, DrawOrder.LINE
         });
-
         FrameLayout frame = (FrameLayout) view.findViewById(R.id.chart);
         frame.addView(mChart);
-
-        createGraph("2016/05/05", "2016/06/01");
-
+        createGraph();
         return view;
     }
 
-    public void createGraph(String Date1, String Date2){
+    public void createGraph(){
         elements = new String[]{"K1", "N", "P", "KS", "KCl", "K2", "Ca", "Mg", "B", "Cu", "K3", "Zn", "Mn", "Fe", "K4", "Mo", "Co", "J", "K5"};
 
         mChart.getDescription().setEnabled(false);
+        mChart.getLegend().setEnabled(false);
+        mChart.setHighlightFullBarEnabled(false);
+        mChart.setDrawGridBackground(false);
+        mChart.setDrawBarShadow(false);
+
+        YAxis rightAxis = mChart.getAxisRight();
+        rightAxis.setDrawGridLines(false);
+        rightAxis.setAxisMinimum(0f);
+
+        YAxis leftAxis = mChart.getAxisLeft();
+        leftAxis.setAxisMinimum(0f);
 
         XAxis xAxis = mChart.getXAxis();
         xAxis.setPosition(XAxisPosition.BOTH_SIDED);
@@ -106,22 +114,44 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
 
         CombinedData data = new CombinedData();
 
+
         data.setData(generateLineData());
         data.setData(generateBarData());
+
+        xAxis.setAxisMaximum(data.getXMax() + 0.5f);
+        xAxis.setAxisMinimum(data.getXMin() - 0.5f);
+
         mChart.setData(data);
+        mChart.invalidate();
     }
+
+    public boolean setBarDataColor(){
+
+        return true;
+    }
+
+    public boolean setLineDataColor(){
+
+        return true;
+    };
 
     private BarData generateBarData() {
 
-        ArrayList<BarEntry> entries1 = new ArrayList<BarEntry>();
-        ArrayList<BarEntry> entries2 = new ArrayList<BarEntry>();
+        ArrayList<BarEntry> entries = new ArrayList<BarEntry>();
 
         for (int i = 0; i < itemcount; i++) {
-            entries1.add(new BarEntry(i, i));
+            entries.add(new BarEntry(i, i));
         }
-        BarDataSet set1 = new BarDataSet(entries1, "Bar 1");
-        BarData d = new BarData(set1);
-        return d;
+        BarDataSet set = new BarDataSet(entries, "Bar 1");
+        set.setColors(new int[]{R.color.lime}, getContext());
+        set.setValueFormatter(new IValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                return new DecimalFormat("###,###,###").format(value);
+            }
+        });
+        set.setValueTextSize(10f);
+        return new BarData(set);
     }
 
     private LineData generateLineData() {
@@ -130,9 +160,20 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
         ArrayList<Entry> entries = new ArrayList<Entry>();
 
         for (int i = 0;i<itemcount;i++){
-            entries.add(new Entry(i,i));
+            if(i==0||i==5||i==10||i==14||i==18)entries.add(new Entry(i,i));
         }
         LineDataSet set = new LineDataSet(entries, "Line DataSet");
+        set.setColors(new int[]{R.color.rad}, getContext());
+        set.setLineWidth(1.5f);
+        set.setCircleColors(new int[]{R.color.rad}, getContext());
+        set.setCircleRadius(2.5f);
+        set.setDrawValues(false);
+        set.setValueFormatter(new IValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                return null;
+            }
+        });
         d.addDataSet(set);
         return d;
     }
