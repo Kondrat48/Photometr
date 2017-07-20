@@ -51,5 +51,9 @@ public class TabPrintFragment extends Fragment {
         return view;
     }
 
+    public void update(){
+
+    }
+
 
 }

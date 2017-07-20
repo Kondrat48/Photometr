@@ -123,6 +123,10 @@ public class TabWatchFragment extends Fragment {
         viewPager.setAdapter(adapter);
     }
 
+    public void update(){
+
+    }
+
 
 
 

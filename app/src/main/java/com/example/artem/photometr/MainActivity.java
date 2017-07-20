@@ -2,6 +2,7 @@ package com.example.artem.photometr;
 
 import android.app.ActionBar;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteCursorDriver;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
@@ -128,18 +130,33 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.item_download_file:
-                dbHelper = new DBHelper(getBaseContext(), "teh.db");
-                SQLiteDatabase db = dbHelper.getReadableDatabase();
                 Toast.makeText(MainActivity.this, "Download", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.item_open_file:
-                Toast.makeText(MainActivity.this, "Open_file", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent();
+                intent.setType("*/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent, 2);
                 return true;
             case R.id.item_settings:
                 Toast.makeText(MainActivity.this, "Settings", Toast.LENGTH_SHORT).show();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 2:
+                if (resultCode == RESULT_OK) {
+                    String path = data.getData().getPath();
+                    Toast.makeText(MainActivity.this, path, Toast.LENGTH_SHORT).show();
+                    break;
+                }else Toast.makeText(MainActivity.this, "Файл не выбран", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 }

@@ -113,4 +113,8 @@ public class TabDocumentSettingsFragment extends Fragment implements View.OnClic
         }
     };
 
+    public void update(){
+
+    }
+
 }

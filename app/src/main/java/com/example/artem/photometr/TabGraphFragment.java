@@ -102,7 +102,8 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
         leftAxis.setAxisMinimum(0f);
 
         XAxis xAxis = mChart.getXAxis();
-        xAxis.setPosition(XAxisPosition.BOTH_SIDED);
+        xAxis.setPosition(XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
         xAxis.setAxisMinimum(0f);
         xAxis.setGranularity(1f);
         xAxis.setValueFormatter(new IAxisValueFormatter() {
@@ -111,6 +112,8 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
                 return elements[(int) value % elements.length];
             }
         });
+        xAxis.setLabelCount(19);
+        xAxis.setLabelRotationAngle(90);
 
         CombinedData data = new CombinedData();
 
@@ -168,14 +171,12 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
         set.setCircleColors(new int[]{R.color.rad}, getContext());
         set.setCircleRadius(2.5f);
         set.setDrawValues(false);
-        set.setValueFormatter(new IValueFormatter() {
-            @Override
-            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                return null;
-            }
-        });
         d.addDataSet(set);
         return d;
+    }
+
+    public void update(){
+
     }
 
 
