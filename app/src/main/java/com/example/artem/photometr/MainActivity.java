@@ -2,14 +2,20 @@ package com.example.artem.photometr;
 
 import android.app.ActionBar;
 
+import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQuery;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.view.ViewPager;
@@ -21,6 +27,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +45,15 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigation;
 
+    private Context context;
+
     private ViewPager vpPager;
+
+    private String dateMeasurements;
+
+    File file;
+    String path="";
+    private int values[] = new int[19];
 
     com.example.artem.photometr.DBHelper dbHelper;
 
@@ -105,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
         });
         setupViewPager(vpPager);
 
-
     }
 
     private void setupViewPager(ViewPager viewPager){
@@ -147,16 +167,65 @@ public class MainActivity extends AppCompatActivity {
 
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case 2:
                 if (resultCode == RESULT_OK) {
-                    String path = data.getData().getPath();
-                    Toast.makeText(MainActivity.this, path, Toast.LENGTH_SHORT).show();
+
+                    path = data.getData().getPath();
+                    path = path.replace("/storage/emulated/0","");
+
+                    file = new File(Environment.getExternalStorageDirectory(), path);
+
+                    Toast.makeText(MainActivity.this, "Выбран файл: "+file.getPath(), Toast.LENGTH_SHORT).show();
+
+
+                    String st = null;
+                    try {
+                        st = getStringFromFile(file);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    int  i = 0, k = 0, r = 0, m = 0;
+                    String temp = "";
+                    while (i<st.length()){
+                        if(st.toCharArray()[i]=='\n')k++;
+                        if(k==1)dateMeasurements=st.substring(0,i);else
+                        if(k==96)m=i;else
+                        if(k>96&&st.toCharArray()[i]=='\n'){
+                            temp=st.substring(m,i);
+                            values[r]=Integer.parseInt(temp);
+                            m=i+1;
+                            r++;
+                        }
+                        i++;
+                    }
+
+                    tabWatchFragment.update(values);
                     break;
                 }else Toast.makeText(MainActivity.this, "Файл не выбран", Toast.LENGTH_SHORT).show();
         }
 
+
+    }
+
+
+    public static String convertStreamToString(InputStream is) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+        return sb.toString();
+    }
+
+    public static String getStringFromFile (File fl) throws Exception {
+        FileInputStream fin = new FileInputStream(fl);
+        String ret = convertStreamToString(fin);
+        fin.close();
+        return ret;
     }
 
 }

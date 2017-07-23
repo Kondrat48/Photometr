@@ -12,6 +12,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 /**
  * Created by User on 2/28/2017.
  */
@@ -123,9 +129,11 @@ public class TabWatchFragment extends Fragment {
         viewPager.setAdapter(adapter);
     }
 
-    public void update(){
-
+    public void update(int[] values){
+        tabGraphFragment.update(values);
+        tabTableFragment.update(values);
     }
+
 
 
 

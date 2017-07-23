@@ -43,6 +43,7 @@ import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
@@ -52,9 +53,6 @@ import java.util.Random;
  */
 
 public class TabGraphFragment extends Fragment implements OnChartGestureListener {
-
-
-    private int itemcount = 19;
 
     public static TabGraphFragment newInstance(int page, String title) {
         TabGraphFragment tabGraphFragment = new TabGraphFragment();
@@ -68,6 +66,7 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
     ArrayList<String> dates;
     private Random random;
     private ArrayList<BarEntry> barEntries;
+    private CombinedData data;
 
 
 
@@ -93,6 +92,7 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
         mChart.setHighlightFullBarEnabled(false);
         mChart.setDrawGridBackground(false);
         mChart.setDrawBarShadow(false);
+        mChart.setTouchEnabled(false);
 
         YAxis rightAxis = mChart.getAxisRight();
         rightAxis.setDrawGridLines(false);
@@ -113,37 +113,26 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
             }
         });
         xAxis.setLabelCount(19);
-        xAxis.setLabelRotationAngle(90);
+        xAxis.setLabelRotationAngle(-75);
 
-        CombinedData data = new CombinedData();
+        data = new CombinedData();
 
+        data.setData(generateLineData(new int[]{0}));
+        data.setData(generateBarData(new int[]{0}));
 
-        data.setData(generateLineData());
-        data.setData(generateBarData());
-
-        xAxis.setAxisMaximum(data.getXMax() + 0.5f);
-        xAxis.setAxisMinimum(data.getXMin() - 0.5f);
+        xAxis.setAxisMaximum(18.5f);
+        xAxis.setAxisMinimum(-0.5f);
 
         mChart.setData(data);
         mChart.invalidate();
     }
 
-    public boolean setBarDataColor(){
-
-        return true;
-    }
-
-    public boolean setLineDataColor(){
-
-        return true;
-    };
-
-    private BarData generateBarData() {
+    private BarData generateBarData(int[] ints) {
 
         ArrayList<BarEntry> entries = new ArrayList<BarEntry>();
 
-        for (int i = 0; i < itemcount; i++) {
-            entries.add(new BarEntry(i, i));
+        for (int i = 0; i < ints.length; i++) {
+            entries.add(new BarEntry(i, ints[i]));
         }
         BarDataSet set = new BarDataSet(entries, "Bar 1");
         set.setColors(new int[]{R.color.lime}, getContext());
@@ -157,27 +146,38 @@ public class TabGraphFragment extends Fragment implements OnChartGestureListener
         return new BarData(set);
     }
 
-    private LineData generateLineData() {
+    private LineData generateLineData(int[] ints) {
 
         LineData d = new LineData();
         ArrayList<Entry> entries = new ArrayList<Entry>();
 
-        for (int i = 0;i<itemcount;i++){
-            if(i==0||i==5||i==10||i==14||i==18)entries.add(new Entry(i,i));
+        for (int i = 0;i<ints.length;i++){
+            if(i==0||i==5||i==10||i==14||i==18)entries.add(new Entry(i,ints[i]));
         }
         LineDataSet set = new LineDataSet(entries, "Line DataSet");
         set.setColors(new int[]{R.color.rad}, getContext());
         set.setLineWidth(1.5f);
         set.setCircleColors(new int[]{R.color.rad}, getContext());
-        set.setCircleRadius(2.5f);
+        set.setCircleRadius(4.5f);
         set.setDrawValues(false);
         d.addDataSet(set);
         return d;
     }
 
-    public void update(){
+    public void update(int[] intsData){
 
+        data = new CombinedData();
+
+
+        data.setData(generateBarData(intsData));
+        data.setData(generateLineData(intsData));
+
+        mChart.setData(data);
+        mChart.invalidate();
+
+        mChart.animateXY(1000,1000);
     }
+
 
 
     @Override

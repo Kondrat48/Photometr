@@ -19,6 +19,20 @@
 
 
         <android.support.design.widget.TextInputLayout
+            android:id="@+id/input_layout_farm_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/input_farm_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textSize="@dimen/text_big_size"
+                android:hint="@string/hint_farm_name"/>
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_agriculture_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -76,7 +90,7 @@
                         android:id="@+id/input_crop"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/hint_crop"
+                        android:hint="Фаза развития"
                         android:maxLines="1"
                         android:textSize="@dimen/text_big_size" />
                 </android.support.design.widget.TextInputLayout>
@@ -1881,6 +1895,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="30dp"
                 android:textSize="@dimen/text_big_size"
+                android:maxLength="100"
                 android:textColorHint="@color/colorPrimary"
                 android:hint="@string/hint_note"/>
         </android.support.design.widget.TextInputLayout>

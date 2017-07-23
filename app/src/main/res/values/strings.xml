@@ -10,9 +10,9 @@
     <string name="title_download_file">Загрузить файл с устройства</string>
     <string name="title_app_settings">Настройки</string>
     <string name="title_back_button">Назад</string>
-    <string name="hint_agriculture_name">Название хозяйства</string>
+    <string name="hint_farm_name">Название хозяйства</string>
     <string name="hint_field_number">Номер поля</string>
-    <string name="hint_crop">Культура</string>
+    <string name="hint_agriculture_name">Культура</string>
     <string name="hint_field_area">Площадь поля</string>
     <string name="hint_predecessor">Предшественник</string>
     <string name="hint_element_nitrogen" translatable="false">N</string>

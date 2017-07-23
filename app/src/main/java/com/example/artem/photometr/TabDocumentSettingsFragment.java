@@ -4,16 +4,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.DialogFragment;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.view.WindowManager;
 import android.text.Editable;
-import android.widget.Toast;
+
+import java.io.File;
 
 /**
  * Created by User on 2/28/2017.
@@ -49,7 +48,7 @@ public class TabDocumentSettingsFragment extends Fragment implements View.OnClic
             cellTopDressin4N, cellTop_dressin4P, cellTop_dressin4K, cellTop_dressin4S, cellTopDressin4Ca, cellTopDressin4Mg, cellTopDressin4B, cellTopDressin4Cu, cellTopDressin4Zn, cellTopDressin4Mn, cellTopDressin4Fe, cellTopDressin4Mo, cellTopDressin4J};
 
     private static final int editTextIds[]={
-            R.id.input_agriculture_name, R.id.input_field_number, R.id.input_crop, R.id.input_field_area, R.id.input_predecessor, R.id.text_note,
+            R.id.input_farm_name, R.id.input_field_number, R.id.input_crop, R.id.input_field_area, R.id.input_predecessor, R.id.text_note,
             R.id.cell_analysis_ph, R.id.cell_analysis_gumus, R.id.cell_analysis_n, R.id.cell_analysis_p, R.id.cell_analysis_k, R.id.cell_analysis_s, R.id.cell_analysis_ca, R.id.cell_analysis_mg, R.id.cell_analysis_b, R.id.cell_analysis_cu, R.id.cell_analysis_zn, R.id.cell_analysis_mn, R.id.cell_analysis_fe, R.id.cell_analysis_mo, R.id.cell_analysis_j,
 
             R.id.input_element_nitrogen, R.id.input_element_phosphorus_pentoxide, R.id.input_element_potassium_oxide, R.id.input_element_sulfur, R.id.input_element_chalk, R.id.input_element_gypsum, R.id.input_element_manure,
@@ -113,7 +112,7 @@ public class TabDocumentSettingsFragment extends Fragment implements View.OnClic
         }
     };
 
-    public void update(){
+    public void update(File file){
 
     }
 
