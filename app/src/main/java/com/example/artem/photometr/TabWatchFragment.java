@@ -37,13 +37,6 @@ public class TabWatchFragment extends Fragment {
     private Button buttonViewSwitcher;
 
 
-    public static TabWatchFragment newInstance(int page, String title) {
-        TabWatchFragment tabWatchFragment = new TabWatchFragment();
-        Bundle args = new Bundle();
-        tabWatchFragment.setArguments(args);
-        return tabWatchFragment;
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

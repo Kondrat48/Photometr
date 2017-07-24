@@ -26,13 +26,6 @@ public class TabPrintFragment extends Fragment {
     private BaseFont bfBold;
     private FrameLayout framePrint;
 
-    public static TabPrintFragment newInstance(int page, String title) {
-        TabPrintFragment tabPrintFragment = new TabPrintFragment();
-        Bundle args = new Bundle();
-        tabPrintFragment.setArguments(args);
-        return tabPrintFragment;
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

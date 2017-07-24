@@ -61,22 +61,13 @@ public class TabDocumentSettingsFragment extends Fragment implements View.OnClic
             R.id.cell_top_dressin4_n, R.id.cell_top_dressin4_p, R.id.cell_top_dressin4_k, R.id.cell_top_dressin4_s, R.id.cell_top_dressin4_ca, R.id.cell_top_dressin1_mg, R.id.cell_top_dressin4_b, R.id.cell_top_dressin4_cu, R.id.cell_top_dressin4_zn, R.id.cell_top_dressin4_mn, R.id.cell_top_dressin4_fe, R.id.cell_top_dressin4_mo,R.id.cell_top_dressin4_j};
 
 
-    private Button btnCompanyInfoSettings, btnGraphSettings;
-
-    public static TabDocumentSettingsFragment newInstance(int page, String title) {
-        TabDocumentSettingsFragment tabDocumentSettingsFragment = new TabDocumentSettingsFragment();
-        Bundle args = new Bundle();
-        tabDocumentSettingsFragment.setArguments(args);
-        return tabDocumentSettingsFragment;
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_document_settings,container,false);
-        btnCompanyInfoSettings = (Button) view.findViewById(R.id.button_company_info_settings);
+        Button btnCompanyInfoSettings = (Button) view.findViewById(R.id.button_company_info_settings);
         btnCompanyInfoSettings.setOnClickListener(this);
-        btnGraphSettings=(Button) view.findViewById(R.id.button_graph_settings);
+        Button btnGraphSettings = (Button) view.findViewById(R.id.button_graph_settings);
         btnGraphSettings.setOnClickListener(this);
 
         for(int i = 0; i<=editText.length-1;i++){
