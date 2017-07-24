@@ -75,5 +75,6 @@
     <string name="clean_button">Отмена</string>
     <string name="save_button">Сохронить</string>
     <string name="cell_text_co">Co</string>
-    <string name="default_company_info">Товариство з обмеженою відповідальністю \'\'АПК-ГРУП\'\'\nУкраїна, 07400, м.Бровари, вул.Грушевського, 7, к.338\nтел. (044) 331 21 50\nmlab@apk-group.com.ua\nwww.agrovector.com.ua\nКонсультаційна лінія: 0 800 505 110</string>
+    <string name="default_company_info">Товариство з обмеженою відповідальністю \"АПК-ГРУП\"\nУкраїна, 07400, м.Бровари, вул.Грушевського, 7, к.338\nтел. (044) 331 21 50\nmlab@apk-group.com.ua\nwww.agrovector.com.ua\nКонсультаційна лінія: 0 800 505 110</string>
+    <string name="save_file">Сохранить файл</string>
 </resources>

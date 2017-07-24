@@ -4,28 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:paddingRight="5dp"
-        android:paddingLeft="5dp"
-        android:id="@+id/btnPrint"
-        android:text="Печать"
-        android:background="@color/colorPrimary"
-        android:textColor="#ffffff"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="15dp" />
+
 
 
     <FrameLayout
         android:id="@+id/container_print"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/btnPrint"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="15dp" />
+        android:layout_marginBottom="20dp" />
 </RelativeLayout>

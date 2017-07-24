@@ -1,88 +1,47 @@
 package com.example.artem.photometr;
 
+import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.text.Editable;
 
-import java.io.File;
+import com.example.artem.photometr.databinding.FragmentDocumentSettingsBinding;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Created by User on 2/28/2017.
  */
 
 public class TabDocumentSettingsFragment extends Fragment implements View.OnClickListener {
-    private EditText
-            inputAgricultureName, inputFieldNumber, inputCrop, inputFieldArea, inputPredecessor, textNote,
-            cellAnalysisPh, cellAnalysisGumus, cellAnalysisN, cellAnalysisP, cellAnalysisK, cellAnalysisS, cellAanalysisCa, cellAnalysisMg, cellAnalysisB, cellAnalysisCu, cellAnalysisZn, cellAnalysisMn, cellAnalysisFe, cellAnalysisMo, cellAnalysisJ,
+    private String stFld;
+    private int[] values;
+    private String stCmt;
 
-            inputElementNitrogen, inputElementPhosphorusPentoxide, inputElementPotassiumOxide, inputElementSulfur, inputElementChalk, inputElementGypsum, inputElementManure,
-            inputElementNitrogen2, inputElementPhosphorusPentoxide2, inputElementPotassiumOxide2, inputElementSulfur2,
-            inputElementNitrogen3, inputElementPhosphorusPentoxide3, inputElementPotassiumOxide3, inputElementSulfur3,
+    private Uri mCmtUri;
+    private Uri mFldUri;
 
-            cellTopDressin1N, cellTop_dressin1P, cellTop_dressin1K, cellTop_dressin1S, cellTopDressin1Ca, cellTopDressin1Mg, cellTopDressin1B, cellTopDressin1Cu, cellTopDressin1Zn, cellTopDressin1Mn, cellTopDressin1Fe, cellTopDressin1Mo, cellTopDressin1J,
-            cellTopDressin2N, cellTop_dressin2P, cellTop_dressin2K, cellTop_dressin2S, cellTopDressin2Ca, cellTopDressin2Mg, cellTopDressin2B, cellTopDressin2Cu, cellTopDressin2Zn, cellTopDressin2Mn, cellTopDressin2Fe, cellTopDressin2Mo, cellTopDressin2J,
-            cellTopDressin3N, cellTop_dressin3P, cellTop_dressin3K, cellTop_dressin3S, cellTopDressin3Ca, cellTopDressin3Mg, cellTopDressin3B, cellTopDressin3Cu, cellTopDressin3Zn, cellTopDressin3Mn, cellTopDressin3Fe, cellTopDressin3Mo, cellTopDressin3J,
-            cellTopDressin4N, cellTop_dressin4P, cellTop_dressin4K, cellTop_dressin4S, cellTopDressin4Ca, cellTopDressin4Mg, cellTopDressin4B, cellTopDressin4Cu, cellTopDressin4Zn, cellTopDressin4Mn, cellTopDressin4Fe, cellTopDressin4Mo, cellTopDressin4J,
-
-            logoPath, dbPath;
-
-    private EditText editText[]={
-            inputAgricultureName, inputFieldNumber, inputCrop, inputFieldArea, inputPredecessor, textNote,
-            cellAnalysisPh, cellAnalysisGumus, cellAnalysisN, cellAnalysisP, cellAnalysisK, cellAnalysisS, cellAanalysisCa, cellAnalysisMg, cellAnalysisB, cellAnalysisCu, cellAnalysisZn, cellAnalysisMn, cellAnalysisFe, cellAnalysisMo, cellAnalysisJ,
-
-            inputElementNitrogen, inputElementPhosphorusPentoxide, inputElementPotassiumOxide, inputElementSulfur, inputElementChalk, inputElementGypsum, inputElementManure,
-            inputElementNitrogen2, inputElementPhosphorusPentoxide2, inputElementPotassiumOxide2, inputElementSulfur2,
-            inputElementNitrogen3, inputElementPhosphorusPentoxide3, inputElementPotassiumOxide3, inputElementSulfur3,
-
-            cellTopDressin1N, cellTop_dressin1P, cellTop_dressin1K, cellTop_dressin1S, cellTopDressin1Ca, cellTopDressin1Mg, cellTopDressin1B, cellTopDressin1Cu, cellTopDressin1Zn, cellTopDressin1Mn, cellTopDressin1Fe, cellTopDressin1Mo, cellTopDressin1J,
-            cellTopDressin2N, cellTop_dressin2P, cellTop_dressin2K, cellTop_dressin2S, cellTopDressin2Ca, cellTopDressin2Mg, cellTopDressin2B, cellTopDressin2Cu, cellTopDressin2Zn, cellTopDressin2Mn, cellTopDressin2Fe, cellTopDressin2Mo, cellTopDressin2J,
-            cellTopDressin3N, cellTop_dressin3P, cellTop_dressin3K, cellTop_dressin3S, cellTopDressin3Ca, cellTopDressin3Mg, cellTopDressin3B, cellTopDressin3Cu, cellTopDressin3Zn, cellTopDressin3Mn, cellTopDressin3Fe, cellTopDressin3Mo, cellTopDressin3J,
-            cellTopDressin4N, cellTop_dressin4P, cellTop_dressin4K, cellTop_dressin4S, cellTopDressin4Ca, cellTopDressin4Mg, cellTopDressin4B, cellTopDressin4Cu, cellTopDressin4Zn, cellTopDressin4Mn, cellTopDressin4Fe, cellTopDressin4Mo, cellTopDressin4J};
-
-    private static final int editTextIds[]={
-            R.id.input_farm_name, R.id.input_field_number, R.id.input_crop, R.id.input_field_area, R.id.input_predecessor, R.id.text_note,
-            R.id.cell_analysis_ph, R.id.cell_analysis_gumus, R.id.cell_analysis_n, R.id.cell_analysis_p, R.id.cell_analysis_k, R.id.cell_analysis_s, R.id.cell_analysis_ca, R.id.cell_analysis_mg, R.id.cell_analysis_b, R.id.cell_analysis_cu, R.id.cell_analysis_zn, R.id.cell_analysis_mn, R.id.cell_analysis_fe, R.id.cell_analysis_mo, R.id.cell_analysis_j,
-
-            R.id.input_element_nitrogen, R.id.input_element_phosphorus_pentoxide, R.id.input_element_potassium_oxide, R.id.input_element_sulfur, R.id.input_element_chalk, R.id.input_element_gypsum, R.id.input_element_manure,
-            R.id.input_element_nitrogen2, R.id.input_element_phosphorus_pentoxide2, R.id.input_element_potassium_oxide2, R.id.input_element_sulfur2,
-            R.id.input_element_nitrogen3, R.id.input_element_phosphorus_pentoxide3, R.id.input_element_potassium_oxide3, R.id.input_element_sulfur3,
-
-            R.id.cell_top_dressin1_n, R.id.cell_top_dressin1_p, R.id.cell_top_dressin1_k, R.id.cell_top_dressin1_s, R.id.cell_top_dressin1_ca, R.id.cell_top_dressin1_mg, R.id.cell_top_dressin1_b, R.id.cell_top_dressin1_cu, R.id.cell_top_dressin1_zn, R.id.cell_top_dressin1_mn, R.id.cell_top_dressin1_fe, R.id.cell_top_dressin1_mo,R.id.cell_top_dressin1_j,
-            R.id.cell_top_dressin2_n, R.id.cell_top_dressin2_p, R.id.cell_top_dressin2_k, R.id.cell_top_dressin2_s, R.id.cell_top_dressin2_ca, R.id.cell_top_dressin1_mg, R.id.cell_top_dressin2_b, R.id.cell_top_dressin2_cu, R.id.cell_top_dressin2_zn, R.id.cell_top_dressin2_mn, R.id.cell_top_dressin2_fe, R.id.cell_top_dressin2_mo,R.id.cell_top_dressin2_j,
-            R.id.cell_top_dressin3_n, R.id.cell_top_dressin3_p, R.id.cell_top_dressin3_k, R.id.cell_top_dressin3_s, R.id.cell_top_dressin3_ca, R.id.cell_top_dressin1_mg, R.id.cell_top_dressin3_b, R.id.cell_top_dressin3_cu, R.id.cell_top_dressin3_zn, R.id.cell_top_dressin3_mn, R.id.cell_top_dressin3_fe, R.id.cell_top_dressin3_mo,R.id.cell_top_dressin3_j,
-            R.id.cell_top_dressin4_n, R.id.cell_top_dressin4_p, R.id.cell_top_dressin4_k, R.id.cell_top_dressin4_s, R.id.cell_top_dressin4_ca, R.id.cell_top_dressin1_mg, R.id.cell_top_dressin4_b, R.id.cell_top_dressin4_cu, R.id.cell_top_dressin4_zn, R.id.cell_top_dressin4_mn, R.id.cell_top_dressin4_fe, R.id.cell_top_dressin4_mo,R.id.cell_top_dressin4_j};
+    FragmentDocumentSettingsBinding binding;
 
 
-    private Button btnCompanyInfoSettings, btnGraphSettings;
-
-    public static TabDocumentSettingsFragment newInstance(int page, String title) {
-        TabDocumentSettingsFragment tabDocumentSettingsFragment = new TabDocumentSettingsFragment();
-        Bundle args = new Bundle();
-        tabDocumentSettingsFragment.setArguments(args);
-        return tabDocumentSettingsFragment;
-    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_document_settings,container,false);
-        btnCompanyInfoSettings = (Button) view.findViewById(R.id.button_company_info_settings);
-        btnCompanyInfoSettings.setOnClickListener(this);
-        btnGraphSettings=(Button) view.findViewById(R.id.button_graph_settings);
-        btnGraphSettings.setOnClickListener(this);
+        binding = DataBindingUtil.inflate(inflater,R.layout.fragment_document_settings,container,false);
+        View view = binding.getRoot();
 
-        for(int i = 0; i<=editText.length-1;i++){
-            editText[i] = (EditText) view.findViewById(editTextIds[i]);
-            editText[i].addTextChangedListener(editTextWatcher);}
-
+        binding.buttonCompanyInfoSettings.setOnClickListener(this);
+        binding.buttonGraphSettings.setOnClickListener(this);
         return view;
     }
 
@@ -101,19 +60,81 @@ public class TabDocumentSettingsFragment extends Fragment implements View.OnClic
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
-    private final TextWatcher editTextWatcher = new TextWatcher() {
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+    public void updateFld(Uri uri){
+        mFldUri = uri;
 
-        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        try {
+            stFld = readTextFromUri(uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        char[] chars= stFld.toCharArray();
 
-        public void afterTextChanged(Editable s) {
+        String temp = null;
+        int  i = 0, k = 0, m = 0, r = 0;
+        EditText[] editTexts = {
+                binding.inputFarmName,binding.inputFieldNumber,binding.inputFieldArea,binding.inputAgricultureName,binding.inputPredecessor,binding.inputStageOfCrop,
+                binding.inputElementNitrogen,binding.inputElementPhosphorusPentoxide,binding.inputElementPotassiumOxide,binding.inputElementSulfur,binding.inputElementChalk,binding.inputElementGypsum,binding.inputElementManure,
+                binding.inputElementNitrogen2,binding.inputElementPhosphorusPentoxide2,binding.inputElementPotassiumOxide2,binding.inputElementSulfur2,
+                binding.inputElementNitrogen3,binding.inputElementPhosphorusPentoxide3,binding.inputElementPotassiumOxide3,binding.inputElementSulfur3};
+
+        while (k<=92){
+            if(chars[i]=='\n'){
+                k++;
+                if(k>=1&&k<=6){editTexts[r].setText(stFld.substring(m,i));m=i+1;r++;}else
+                if(k==78)m=i+1;else
+                if(k>=79&&k<=93){editTexts[r].setText(stFld.substring(m,i));m=i+1;r++;}
+            }
+            i++;
 
         }
-    };
+    }
 
-    public void update(File file){
+    public void updateCmt(Uri uri){
+        mCmtUri = uri;
+        try {
+            stCmt = readTextFromUri(uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String temp = null;
+        int i=0,k=0;
+        while (i<stCmt.length()) {
+            if (stCmt.toCharArray()[i] == '\n') k++;
+            if (k == 1) temp=stCmt.substring(0,i);
+            i++;
+        }
+        binding.textNote.setText(temp);
+    }
 
+    private String readTextFromUri(Uri uri) throws IOException {
+        InputStream inputStream = getContext().getContentResolver().openInputStream(uri);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                inputStream));
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            stringBuilder.append(line);
+            stringBuilder.append('\n');
+        }
+        return stringBuilder.toString();
+    }
+
+    public void saveFld(){
+
+    }
+
+    public void saveCmt(){
+        if(mCmtUri!=null){
+
+        }else{
+
+        }
     }
 
 }

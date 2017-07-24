@@ -7,13 +7,15 @@
         android:title="@string/title_download_file"
         app:showAsAction="always"/>
 
-    <item android:id="@+id/item_open_file"
+    <item
+        android:id="@+id/item_save_file"
+        android:icon="@drawable/ic_save_black_24px"
+        android:title="@string/save_file"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/item_open_file"
         android:icon="@drawable/ic_folder_black_24px"
         android:title="@string/title_open_file"
-        app:showAsAction="always"/>
-
-    <item android:id="@+id/item_settings"
-        android:icon="@drawable/ic_app_settings_black_24px"
-        android:title="@string/title_app_settings"/>
+        app:showAsAction="always" />
 
 </menu>
