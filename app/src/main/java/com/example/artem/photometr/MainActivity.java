@@ -13,20 +13,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,9 +37,9 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigation;
 
-    private ViewPager vpPager;
+    private CustomViewPager vpPager;
 
-    private String dateMeasurements;
+    private String dateMeasurements = null;
 
     private File file;
     private String path="";
@@ -49,13 +49,15 @@ public class MainActivity extends AppCompatActivity {
 
     private TabWatchFragment tabWatchFragment;
     private TabDocumentSettingsFragment tabDocumentSettingsFragment;
-    private TabPrintFragment tabPrintFragment;
+    private TabPdfFragment tabPdfFragment;
     private MenuItem prevMenuItem;
 
     private Stack<Integer> pagesHistory = new Stack<>();
     private int vpPosition = 0;
     private Uri uri;
     private String st;
+
+    private boolean changesInPdf = true;
 
 
     @Override
@@ -84,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        vpPager = (ViewPager) findViewById(R.id.main_container);
-
+        vpPager = (CustomViewPager) findViewById(R.id.main_container);
+        vpPager.setPagingEnabled(false);
         bottomNavigation = (BottomNavigationView) findViewById(R.id.navigation);
         bottomNavigation.inflateMenu(R.menu.navigation);
 
@@ -130,27 +132,48 @@ public class MainActivity extends AppCompatActivity {
 
                 vpPosition = vpPager.getCurrentItem();
                 if(pagesHistory.empty())pagesHistory.push(0);
-                if(pagesHistory.peek()!=vpPosition)pagesHistory.push(vpPosition);
+                if(pagesHistory.peek()!=vpPosition) {
+                    pagesHistory.push(vpPosition);
+                    if (position == 2){
+                        if(doChangesInPdf()){
+                            changesInPdf = false;
+                            tabDocumentSettingsFragment.setChanged();
+                            tabPdfFragment.update(tabDocumentSettingsFragment.getData(),dateMeasurements,tabWatchFragment.getData(),tabWatchFragment.getGraph() );
+                        }else {
+                            tabPdfFragment.showPdf();
+                        }
+                    }
+                    if (position == 0 && values != null) tabWatchFragment.update(values, null);
+                }
+                }
 
-                if(position==0)
-                    if(values!=null)
-                        tabWatchFragment.update(values,null);
-            }
+
+
 
             @Override
             public void onPageScrollStateChanged(int state) {}
         });
+        File root = new File(Environment.getExternalStorageDirectory()+File.separator+ "Photometer");
+        if (!root.exists()) {
+            root.mkdirs();
+        }
         setupViewPager(vpPager);
+
+    }
+
+    private boolean doChangesInPdf(){
+        if(tabDocumentSettingsFragment.isChanged()||changesInPdf)return true;
+        else return false;
     }
 
     private void setupViewPager(ViewPager viewPager){
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         tabWatchFragment = new TabWatchFragment();
         tabDocumentSettingsFragment = new TabDocumentSettingsFragment();
-        tabPrintFragment = new TabPrintFragment();
+        tabPdfFragment = new TabPdfFragment();
         adapter.addFragment(tabWatchFragment);
         adapter.addFragment(tabDocumentSettingsFragment);
-        adapter.addFragment(tabPrintFragment);
+        adapter.addFragment(tabPdfFragment);
         viewPager.setAdapter(adapter);
     }
 
@@ -165,10 +188,31 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.item_download_file:
+
+
+
                 Toast.makeText(MainActivity.this, "Загрузить", Toast.LENGTH_SHORT).show();
+
                 return true;
             case R.id.item_open_file:
-                performFileSearch();
+                AlertDialog dialogInfo;
+                final AlertDialog.Builder builderInfo = new AlertDialog.Builder(this);
+                builderInfo.setTitle("Виберите файл")
+                        .setMessage("Файлы с расширением .fld содержат информацию про поле, .cmt - примичание к ней, .pht - информация, считаная с фотометра.")
+                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialogInterface) {
+                                Toast.makeText(MainActivity.this,"Файл не выбран",Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                performFileSearch();
+                            }
+                        });
+                dialogInfo = builderInfo.create();
+                dialogInfo.show();
                 return true;
             case R.id.item_save_file:
                 AlertDialog dialog;
@@ -191,15 +235,11 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                if(!seletedItems.isEmpty()){
-                                    Toast.makeText(MainActivity.this, "Сохранение...", Toast.LENGTH_SHORT).show();
-                                    if (seletedItems.size()>1)Toast.makeText(MainActivity.this, "Ваши файлы сохранены в папке /storage/emulated/0/Photometer", Toast.LENGTH_SHORT).show();
-                                    else Toast.makeText(MainActivity.this, "Ваш файл сохранен в папке /storage/emulated/0/Photometer", Toast.LENGTH_SHORT).show();
-                                }else Toast.makeText(MainActivity.this, "Вы не выбрали файлы для сохранения", Toast.LENGTH_SHORT).show();
-                                if(seletedItems.contains(0))tabDocumentSettingsFragment.saveFld();
-                                if(seletedItems.contains(1))tabDocumentSettingsFragment.saveCmt();
-                                if(seletedItems.contains(2))tabPrintFragment.savePdf();
-                                if(seletedItems.contains(3))tabWatchFragment.saveGraph();
+                                if(seletedItems.isEmpty())Toast.makeText(MainActivity.this, "Вы не выбрали файлы для сохранения", Toast.LENGTH_SHORT).show();
+                                if(seletedItems.contains(0)) createNewFile(0);
+                                if(seletedItems.contains(1)) createNewFile(1);
+                                if(seletedItems.contains(2)) createNewFile(2);
+                                if(seletedItems.contains(3)) createNewFile(3);
                                 seletedItems.clear();
                             }
                         })
@@ -217,17 +257,85 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void createNewFile(final int type){
+        final boolean[] isCreatable = {false};
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.fragment_dialog_save_pdf, null);
+        dialogBuilder.setView(dialogView);
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+        final EditText edt = (EditText) dialogView.findViewById(R.id.edit1);
+
+        String title = null;
+        String ending = null;
+        switch (type){
+            case 0:
+                title = "Введите название нового FLD файла";
+                ending = ".fld";
+                edt.setText("Поле №"+tabDocumentSettingsFragment.getData()[2]+ending);
+                break;
+            case 1:
+                title = "Введите название нового CMT файла";
+                ending = ".cmt";
+                edt.setText("Поле №"+tabDocumentSettingsFragment.getData()[2]+ending);
+                break;
+            case 2:
+                if(doChangesInPdf())tabPdfFragment.update(tabDocumentSettingsFragment.getData(),dateMeasurements,tabWatchFragment.getData(),tabWatchFragment.getGraph());
+                title = "Введите название нового PDF файла";
+                ending = ".pdf";
+                break;
+            case 3:
+                title = "Введите название нового PNG файла";
+                ending = ".png";
+                break;
+        }
+        dialogBuilder.setTitle(title);
+        final String finalEnding = ending;
+        dialogBuilder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                if(edt.getText().toString().length()>0){
+                    isCreatable[0] = true;
+                    String str;
+                    if(edt.getText().toString().endsWith(finalEnding)||type==3)str = edt.getText().toString();
+                    else str = edt.getText().toString() + finalEnding;
+
+
+                    switch (type){
+                        case 0:
+                            tabDocumentSettingsFragment.saveFld(str);
+                            break;
+                        case 1:
+                            tabDocumentSettingsFragment.saveCmt(str);
+                            break;
+                        case 2:
+                            File dir = new File(Environment.getExternalStorageDirectory(),"/Photometer/" + str);
+                            tabPdfFragment.savePdf(dir);
+                            break;
+                        case 3:
+                            tabWatchFragment.saveGraph(str);
+                            Toast.makeText(MainActivity.this, "Файл сохранён в "+Environment.getExternalStorageDirectory()+"/Photometer/"+str+finalEnding, Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                    Toast.makeText(MainActivity.this, "Файл сохранён в "+Environment.getExternalStorageDirectory()+"/Photometer/"+str, Toast.LENGTH_SHORT).show();
+            }
+            else Toast.makeText(MainActivity.this, "Вы не выбрали имя файла", Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            }
+        });
+        AlertDialog b = dialogBuilder.create();
+        b.show();
     }
+
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case 20:
                 if(resultCode== Activity.RESULT_OK)
                     uri = null;
+                else Toast.makeText(MainActivity.this,"Файл не выбран",Toast.LENGTH_SHORT).show();
                 if (data != null) {
                     if (data.getData().getPath().endsWith(".pht")){
                         uri = data.getData();
@@ -258,12 +366,15 @@ public class MainActivity extends AppCompatActivity {
 
                         getSupportActionBar().setTitle(dateMeasurements);
 
+                        changesInPdf = true;
                         tabWatchFragment.update(values,null);
                     }else if(data.getData().getPath().endsWith(".fld")){
                         uri = data.getData();
+                        changesInPdf = true;
                         tabDocumentSettingsFragment.updateFld(uri);
                     }else if(data.getData().getPath().endsWith(".cmt")){
                         uri = data.getData();
+                        changesInPdf = true;
                         tabDocumentSettingsFragment.updateCmt(uri);
                     }else Toast.makeText(MainActivity.this, "Формат файла не поддерживается", Toast.LENGTH_SHORT).show();
 
@@ -299,43 +410,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public static String convertStreamToString(InputStream is) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line).append("\n");
-        }
-        reader.close();
-        return sb.toString();
-    }
-
-    public static String getStringFromFile (File fl) throws Exception {
-        FileInputStream fin = new FileInputStream(fl);
-        String ret = convertStreamToString(fin);
-        fin.close();
-        return ret;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putIntArray("values",values);
-        savedInstanceState.putString("dateMeasurements",dateMeasurements);
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        values=savedInstanceState.getIntArray("values");
-        dateMeasurements=savedInstanceState.getString("dateMeasurements");
-        tabWatchFragment.update(values,null);
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         tabWatchFragment.rotate(newConfig.orientation);
+        tabPdfFragment.showPdf();
     }
 
 }

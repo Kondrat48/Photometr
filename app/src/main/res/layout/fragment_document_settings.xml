@@ -2,7 +2,10 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_alignParentEnd="true"
     android:layout_alignParentRight="true"
-    android:layout_alignParentTop="true">
+    android:layout_alignParentTop="true"
+    android:descendantFocusability="beforeDescendants"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
     <ScrollView
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -27,6 +30,7 @@
                 android:layout_height="wrap_content">
 
                 <EditText
+                    android:maxLength="16"
                     android:id="@+id/input_farm_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -41,6 +45,7 @@
                 android:layout_height="wrap_content">
 
                 <EditText
+                    android:maxLength="16"
                     android:id="@+id/input_agriculture_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -66,6 +71,7 @@
                         android:layout_height="wrap_content">
 
                         <EditText
+                            android:maxLength="33"
                             android:id="@+id/input_field_number"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
@@ -90,6 +96,7 @@
                         android:layout_height="wrap_content">
 
                         <EditText
+                            android:maxLength="16"
                             android:id="@+id/input_stage_of_crop"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
@@ -117,6 +124,7 @@
                         android:layout_toStartOf="@+id/textView3">
 
                         <EditText
+                            android:maxLength="33"
                             android:id="@+id/input_field_area"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -152,6 +160,7 @@
                         android:layout_height="wrap_content">
 
                         <EditText
+                            android:maxLength="16"
                             android:id="@+id/input_predecessor"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -507,6 +516,7 @@
                         android:layout_toStartOf="@+id/textView4">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_nitrogen"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -547,6 +557,7 @@
                         android:layout_toStartOf="@+id/textView8">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_phosphorus_pentoxide"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -589,6 +600,7 @@
                         android:layout_toStartOf="@+id/textView5">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_potassium_oxide"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -629,6 +641,7 @@
                         android:layout_toStartOf="@+id/textView9">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_sulfur"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -671,6 +684,7 @@
                         android:layout_toStartOf="@+id/textView6">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_chalk"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -711,6 +725,7 @@
                         android:layout_toStartOf="@+id/textView10">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_gypsum"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -759,6 +774,7 @@
                         android:layout_toStartOf="@+id/textView7">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_manure"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -813,6 +829,7 @@
                         android:layout_toStartOf="@+id/textView11">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_nitrogen2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -853,6 +870,7 @@
                         android:layout_toStartOf="@+id/textView13">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_phosphorus_pentoxide2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -895,6 +913,7 @@
                         android:layout_toStartOf="@+id/textView12">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_potassium_oxide2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -935,6 +954,7 @@
                         android:layout_toStartOf="@+id/textView14">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_sulfur2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -992,6 +1012,7 @@
                         android:layout_toStartOf="@+id/textView16">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_nitrogen3"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -1032,6 +1053,7 @@
                         android:layout_toStartOf="@+id/textView17">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_phosphorus_pentoxide3"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -1074,6 +1096,7 @@
                         android:layout_toStartOf="@+id/textView15">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_potassium_oxide3"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -1114,6 +1137,7 @@
                         android:layout_toStartOf="@+id/textView18">
 
                         <EditText
+                            android:maxLength="6"
                             android:id="@+id/input_element_sulfur3"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -1903,58 +1927,6 @@
                     android:textColorHint="@color/colorPrimary"
                     android:hint="@string/hint_note"/>
             </android.support.design.widget.TextInputLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="60dp"
-                android:text="Дополнительные параметры"
-                android:textColor="@color/colorPrimary"
-                android:textSize="@dimen/text_medium_size"/>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
-                    android:text="О фирме"
-                    android:textAllCaps="false"
-                    android:background="@color/transparent"
-                    android:textSize="@dimen/text_big_size"
-                    android:clickable="true"
-                    android:layout_centerVertical="true"
-                    android:padding="10dp"
-                    android:gravity="center"
-                    android:id="@+id/button_company_info_settings"
-                    android:layout_toLeftOf="@+id/view5"
-                    android:layout_toStartOf="@+id/view5" />
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_centerHorizontal="true"
-                    android:id="@+id/view5" />
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
-                    android:text="График"
-                    android:textAllCaps="false"
-                    android:background="@color/transparent"
-                    android:textSize="@dimen/text_big_size"
-                    android:clickable="true"
-                    android:layout_centerVertical="true"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true"
-                    android:id="@+id/button_graph_settings"
-                    android:layout_toRightOf="@+id/view5"
-                    android:layout_toEndOf="@+id/view5"/>
-            </RelativeLayout>
 
 
         </LinearLayout>

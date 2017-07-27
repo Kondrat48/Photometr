@@ -1,24 +1,19 @@
 package com.example.artem.photometr;
 
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatDelegate;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -37,15 +32,10 @@ import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Created by User on 2/28/2017.
@@ -75,7 +65,6 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     private static final TextView kgOnHa[]={k1kgha, nkgha, pkgha, kskgha, kclkgha, k2kgha, cakgha, mgkgha, bkgha, cukgha, k3kgha, znkgha, mnkgha, fekgha, k4kgha, mokgha, cokgha, jkgha, k5kgha};
     private static final TextView db[]={k1db, ndb, pdb, ksdb, kcldb, k2db, cadb, mgdb, bdb, cudb, k3db, zndb, mndb, fedb, k4db, modb, codb, jdb, k5db};
 
-    private static final double mMeasuring[]=new double[19];
     private static final double mHundPerc[]=new double[19];
     private static final double mPercent[]=new double[19];
     private static final double mKgOnHa[]=new double[19];
@@ -91,8 +80,8 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     private String[] elements;
     private int[] mValues;
     private CombinedData data;
+    private CombinedChart combinedChart;
 
-    private File mFile;
     private RelativeLayout table;
     private FrameLayout frame;
     private RelativeLayout frameLayout;
@@ -104,6 +93,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
 
     private Button buttonViewSwitcher;
+    private Button buttonWatchSettings;
     private RelativeLayout buttonViewSwitcherLayout;
 
 
@@ -112,17 +102,25 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_watch,container,false);
 
-        table = (RelativeLayout) view.findViewById(R.id.table);
-        frame = (FrameLayout) view.findViewById(R.id.chart);
-        frameLayout = (RelativeLayout) view.findViewById(R.id.chartLayout);
-        for(int i = 0; i<= measuring.length-1; i++) measuring[i] = (TextView) view.findViewById(idMeasuring[i]);
-        for(int i = 0; i<= hundPerc.length-1; i++) hundPerc[i] = (TextView) view.findViewById(idHundPerc[i]);
-        for(int i = 0; i<= percent.length-1; i++) percent[i] = (TextView) view.findViewById(idPercent[i]);
-        for(int i = 0; i<= kgOnHa.length-1; i++) kgOnHa[i] = (TextView) view.findViewById(idKgOnHa[i]);
-        for(int i = 0; i<= db.length-1; i++) db[i] = (TextView) view.findViewById(idDb[i]);
+        table = view.findViewById(R.id.table);
+        frame = view.findViewById(R.id.chart);
+        combinedChart = view.findViewById(R.id.chartInvisible);
+        frameLayout = view.findViewById(R.id.chartLayout);
+        buttonWatchSettings = view.findViewById(R.id.settingsButtonWatch);
+        buttonWatchSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO write method!!!
+            }
+        });
+        for(int i = 0; i<= measuring.length-1; i++) measuring[i] = view.findViewById(idMeasuring[i]);
+        for(int i = 0; i<= hundPerc.length-1; i++) hundPerc[i] = view.findViewById(idHundPerc[i]);
+        for(int i = 0; i<= percent.length-1; i++) percent[i] = view.findViewById(idPercent[i]);
+        for(int i = 0; i<= kgOnHa.length-1; i++) kgOnHa[i] = view.findViewById(idKgOnHa[i]);
+        for(int i = 0; i<= db.length-1; i++) db[i] = view.findViewById(idDb[i]);
 
-        buttonViewSwitcher = (Button) view.findViewById(R.id.button_view_switcher);
-        buttonViewSwitcherLayout = (RelativeLayout) view.findViewById(R.id.layout_button_view_switcher);
+        buttonViewSwitcher = view.findViewById(R.id.button_view_switcher);
+        buttonViewSwitcherLayout = view.findViewById(R.id.layout_button_view_switcher);
 
         if(android.os.Build.VERSION.SDK_INT >= 21){
             buttonViewSwitcher.setCompoundDrawablesWithIntrinsicBounds(0,R.drawable.table,0,0);
@@ -134,6 +132,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
             @Override
             public void onClick(View view) {
                 if(table.getVisibility()==View.INVISIBLE){
+
                     table.setVisibility(View.VISIBLE);
                     frame.setVisibility(View.INVISIBLE);
                     if(android.os.Build.VERSION.SDK_INT >= 21){
@@ -266,7 +265,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
     public void update(int[] values, File file){
 
-        if(file!=null)mFile=file;
+        if(file!=null) ;
 
         mValues = values;
 
@@ -315,7 +314,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
             if(i<=5)a[i]=values[0];else if(i<=10)a[i]=2*values[5]-values[10];else if(i<=14)a[i]=3.5*values[10]-2.5*values[14];else a[i]=4.5*values[14]-3.5*values[18];
             if(i<=5)b[i]=(values[5]-values[0])/5.0;else if(i<=10)b[i]=(values[10]-values[5])/5.0;else if(i<=14)b[i]=(values[14]-values[10])/4.0;else b[i]=(values[18]-values[14])/4.0;
             mHundPerc[i]=i*b[i]+a[i];
-            if(values[i]>mHundPerc[i])if((values[i]-mHundPerc[i])*100/(double)mHundPerc[i]>100)mPercent[i]=100;else mPercent[i]=(values[i]-mHundPerc[i])*100/(double)mHundPerc[i];else mPercent[i]=0;
+            if(values[i]>mHundPerc[i])if((values[i]-mHundPerc[i])*100/ mHundPerc[i] >100)mPercent[i]=100;else mPercent[i]=(values[i]-mHundPerc[i])*100/ mHundPerc[i];else mPercent[i]=0;
             mKgOnHa[i]=mPercent[i]*kgOnHa100perc[i]/100.0;
             mDb[i]=mPercent[i]*db100perc[i]/100.0;
             db[i].setText(formatter.format(mDb[i]));
@@ -367,12 +366,65 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
     }
 
-    public void getGraph(){
 
+    public Bitmap getGraph(){
+        combinedChart.setData(mChart.getData());
+        combinedChart.getDescription().setEnabled(false);
+        combinedChart.getLegend().setEnabled(false);
+        combinedChart.setHighlightFullBarEnabled(false);
+        combinedChart.setDrawGridBackground(false);
+        combinedChart.setDrawBarShadow(false);
+        combinedChart.setTouchEnabled(false);
+
+        YAxis rightAxis = combinedChart.getAxisRight();
+        rightAxis.setDrawGridLines(false);
+        rightAxis.setAxisMinimum(0f);
+
+        YAxis leftAxis = combinedChart.getAxisLeft();
+        leftAxis.setAxisMinimum(0f);
+
+        XAxis xAxis = combinedChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setAxisMinimum(0f);
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return elements[(int) value % elements.length];
+            }
+        });
+        xAxis.setLabelCount(19);
+
+        xAxis.setAxisMaximum(18.5f);
+        xAxis.setAxisMinimum(-0.5f);
+        return combinedChart.getChartBitmap();
     }
 
-    public void saveGraph(){
+    public String[] getData(){
+        String[] data = new String[42];
+        int k = 0;
+        for (int i = 0;i<57;i++){
+            if(i>0&&i<5){data[k]=measuring[i].getText().toString();k++;}else
+            if(i>5&&i<10){data[k]=measuring[i].getText().toString();k++;}else
+            if(i>10&&i<14){data[k]=measuring[i].getText().toString();k++;}else
+            if(i>14&&i<18){data[k]=measuring[i].getText().toString();k++;}
+        }        for (int i = 0;i<57;i++){
+            if(i>0&&i<5){data[k]=percent[i].getText().toString();k++;}else
+            if(i>5&&i<10){data[k]=percent[i].getText().toString();k++;}else
+            if(i>10&&i<14){data[k]=percent[i].getText().toString();k++;}else
+            if(i>14&&i<18){data[k]=percent[i].getText().toString();k++;}
+        }        for (int i = 0;i<57;i++){
+            if(i>0&&i<5){data[k]=db[i].getText().toString();k++;}else
+            if(i>5&&i<10){data[k]=db[i].getText().toString();k++;}else
+            if(i>10&&i<14){data[k]=db[i].getText().toString();k++;}else
+            if(i>14&&i<18){data[k]=db[i].getText().toString();k++;}
+        }
+        return data;
+    }
 
+    public void saveGraph(String title){
+        mChart.saveToPath(title, "/Photometer");
     }
 
     @Override
