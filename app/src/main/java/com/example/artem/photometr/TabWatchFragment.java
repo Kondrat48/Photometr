@@ -46,6 +46,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
 
 
+
     private static final int idMeasuring[]={R.id.cell_changes_k1,R.id.cell_changes_n,R.id.cell_changes_p,R.id.cell_changes_ks,R.id.cell_changes_kcl,R.id.cell_changes_k2,R.id.cell_changes_ca,R.id.cell_changes_mg,R.id.cell_changes_b,R.id.cell_changes_cu,R.id.cell_changes_k3,R.id.cell_changes_zn,R.id.cell_changes_mn,R.id.cell_changes_fe,R.id.cell_changes_k4,R.id.cell_changes_mo,R.id.cell_changes_co,R.id.cell_changes_j,R.id.cell_changes_k5};
     private static final int idHundPerc[]={R.id.cell_100_procent_k1,R.id.cell_100_procent_n,R.id.cell_100_procent_p,R.id.cell_100_procent_ks,R.id.cell_100_procent_kcl,R.id.cell_100_procent_k2,R.id.cell_100_procent_ca,R.id.cell_100_procent_mg,R.id.cell_100_procent_b,R.id.cell_100_procent_cu,R.id.cell_100_procent_k3,R.id.cell_100_procent_zn,R.id.cell_100_procent_mn,R.id.cell_100_procent_fe,R.id.cell_100_procent_k4,R.id.cell_100_procent_mo,R.id.cell_100_procent_co,R.id.cell_100_procent_j,R.id.cell_100_procent_k5};
     private static final int idPercent[]={R.id.cell_procent_k1,R.id.cell_procent_n,R.id.cell_procent_p,R.id.cell_procent_ks,R.id.cell_procent_kcl,R.id.cell_procent_k2,R.id.cell_procent_ca,R.id.cell_procent_mg,R.id.cell_procent_b,R.id.cell_procent_cu,R.id.cell_procent_k3,R.id.cell_procent_zn,R.id.cell_procent_mn,R.id.cell_procent_fe,R.id.cell_procent_k4,R.id.cell_procent_mo,R.id.cell_procent_co,R.id.cell_procent_j,R.id.cell_procent_k5};
