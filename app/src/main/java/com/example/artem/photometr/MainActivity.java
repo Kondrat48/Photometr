@@ -162,8 +162,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean doChangesInPdf(){
-        if(tabDocumentSettingsFragment.isChanged()||changesInPdf)return true;
-        else return false;
+        return tabDocumentSettingsFragment.isChanged() || changesInPdf;
     }
 
     private void setupViewPager(ViewPager viewPager){
@@ -264,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
         final View dialogView = inflater.inflate(R.layout.fragment_dialog_save_pdf, null);
         dialogBuilder.setView(dialogView);
 
-        final EditText edt = (EditText) dialogView.findViewById(R.id.edit1);
+        final EditText edt = dialogView.findViewById(R.id.edit1);
 
         String title = null;
         String ending = null;
@@ -415,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         tabWatchFragment.rotate(newConfig.orientation);
-        tabPdfFragment.showPdf();
+        if(vpPosition==2)tabPdfFragment.showPdf();
     }
 
 }

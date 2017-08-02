@@ -100,7 +100,7 @@ public class TabPdfFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_print,container,false);
         frame = view.findViewById(R.id.container_print);
-        file = new File(getContext().getFilesDir()+"/temp.pdf");
+        file = new File(getActivity().getFilesDir()+"/temp.pdf");
         buttonSettings = view.findViewById(R.id.settingsButtonPdf);
         spCompanyInfo = getActivity().getSharedPreferences(COMPANY_INFO_PREFERENCES, Context.MODE_PRIVATE);
         companyInfoString = spCompanyInfo.getString(COMPANY_INFO_PREFERENCES, "");
