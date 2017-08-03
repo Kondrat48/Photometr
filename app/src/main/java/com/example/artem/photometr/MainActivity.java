@@ -1,9 +1,14 @@
 package com.example.artem.photometr;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,12 +26,20 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
+import com.hoho.android.usbserial.driver.ProbeTable;
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
@@ -183,78 +196,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.item_download_file:
 
-
-
-                Toast.makeText(MainActivity.this, "Загрузить", Toast.LENGTH_SHORT).show();
-
-                return true;
-            case R.id.item_open_file:
-                AlertDialog dialogInfo;
-                final AlertDialog.Builder builderInfo = new AlertDialog.Builder(this);
-                builderInfo.setTitle("Виберите файл")
-                        .setMessage("Файлы с расширением .fld содержат информацию про поле, .cmt - примичание к ней, .pht - информация, считаная с фотометра.")
-                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialogInterface) {
-                                Toast.makeText(MainActivity.this,"Файл не выбран",Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                performFileSearch();
-                            }
-                        });
-                dialogInfo = builderInfo.create();
-                dialogInfo.show();
-                return true;
-            case R.id.item_save_file:
-                AlertDialog dialog;
-                CharSequence[] items = {"Информация о поле","Примечание","Pdf документ","График отдельно"};
-                final ArrayList seletedItems=new ArrayList();
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Выберите какие файлы сохранить");
-                builder.setMultiChoiceItems(items, null,
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int indexSelected,
-                                                boolean isChecked) {
-                                if (isChecked) {
-                                    seletedItems.add(indexSelected);
-                                } else if (seletedItems.contains(indexSelected)) {
-                                    seletedItems.remove(Integer.valueOf(indexSelected));
-                                }
-                            }
-                        })
-                        .setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                if(seletedItems.isEmpty())Toast.makeText(MainActivity.this, "Вы не выбрали файлы для сохранения", Toast.LENGTH_SHORT).show();
-                                if(seletedItems.contains(0)) createNewFile(0);
-                                if(seletedItems.contains(1)) createNewFile(1);
-                                if(seletedItems.contains(2)) createNewFile(2);
-                                if(seletedItems.contains(3)) createNewFile(3);
-                                seletedItems.clear();
-                            }
-                        })
-                        .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                seletedItems.clear();
-                            }
-                        });
-
-                dialog = builder.create();
-                dialog.show();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     private void createNewFile(final int type){
         final boolean[] isCreatable = {false};
@@ -417,4 +359,130 @@ public class MainActivity extends AppCompatActivity {
         if(vpPosition==2)tabPdfFragment.showPdf();
     }
 
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.item_open_file:
+                AlertDialog dialogInfo;
+                final AlertDialog.Builder builderInfo = new AlertDialog.Builder(this);
+                builderInfo.setTitle("Виберите файл")
+                        .setMessage("Файлы с расширением .fld содержат информацию про поле, .cmt - примичание к ней, .pht - информация, считаная с фотометра.")
+                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialogInterface) {
+                                Toast.makeText(MainActivity.this,"Файл не выбран",Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                performFileSearch();
+                            }
+                        });
+                dialogInfo = builderInfo.create();
+                dialogInfo.show();
+                return true;
+            case R.id.item_save_file:
+                AlertDialog dialog;
+                CharSequence[] items = {"Информация о поле","Примечание","Pdf документ","График отдельно"};
+                final ArrayList seletedItems=new ArrayList();
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Выберите какие файлы сохранить");
+                builder.setMultiChoiceItems(items, null,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int indexSelected,
+                                                boolean isChecked) {
+                                if (isChecked) {
+                                    seletedItems.add(indexSelected);
+                                } else if (seletedItems.contains(indexSelected)) {
+                                    seletedItems.remove(Integer.valueOf(indexSelected));
+                                }
+                            }
+                        })
+                        .setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                if(seletedItems.isEmpty())Toast.makeText(MainActivity.this, "Вы не выбрали файлы для сохранения", Toast.LENGTH_SHORT).show();
+                                if(seletedItems.contains(0)) createNewFile(0);
+                                if(seletedItems.contains(1)) createNewFile(1);
+                                if(seletedItems.contains(2)) createNewFile(2);
+                                if(seletedItems.contains(3)) createNewFile(3);
+                                seletedItems.clear();
+                            }
+                        })
+                        .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                seletedItems.clear();
+                            }
+                        });
+
+                dialog = builder.create();
+                dialog.show();
+                return true;
+            case R.id.item_download_file:
+
+                UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+
+                ProbeTable table = new ProbeTable();
+                table.addProduct(0x04d8,0x000a, CdcAcmSerialDriver.class);
+
+                UsbSerialProber prober = new UsbSerialProber(table);
+                List<UsbSerialDriver> drivers = prober.findAllDrivers(manager);
+                if(!drivers.isEmpty()){
+                    UsbSerialDriver driver = drivers.get(0);
+                    UsbDevice device = driver.getDevice();
+                    UsbDeviceConnection connection = manager.openDevice(device);
+                    if(connection==null)manager.requestPermission(device, PendingIntent.getBroadcast(this, 0, new Intent("com.android.example.USB_PERMISSION"), 0));
+                    Toast.makeText(MainActivity.this,"Фотометр подключён",Toast.LENGTH_SHORT);
+                    UsbSerialPort port = driver.getPorts().get(0);
+                    byte[] buffer = new byte[64];
+                    if(connection!=null){
+                        try {
+                            port.open(connection);
+                            port.setParameters(19200,8,1,UsbSerialPort.PARITY_NONE);
+                            char a = (char)0xAA;
+                            port.write(new byte[]{(byte)a},1500);
+                            port.read(buffer,20);
+                            port.close();
+                        } catch (IOException e) {
+                            try {
+                                port.close();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                else Toast.makeText(MainActivity.this,"Фотометр не подключён",Toast.LENGTH_SHORT).show();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+}
+
+class UsbCommunication extends Thread{
+    boolean running;
+
+    Queue<byte[]> cmdToSend;
+
+    UsbCommunication(){
+
+    }
+
+    public void start(){
+
+    }
+
+    @Override
+    public void run() {
+        while (running){
+            synchronized (cmdToSend){}
+        }
+    }
 }
