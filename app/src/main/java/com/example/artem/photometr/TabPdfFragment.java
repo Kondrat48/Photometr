@@ -4,19 +4,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -25,9 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.github.barteksc.pdfviewer.PDFView;
@@ -64,19 +55,14 @@ import static android.app.Activity.RESULT_OK;
 
 public class TabPdfFragment extends Fragment implements View.OnClickListener {
 
-    ImageView logoImageView;
-
-    Button logoImageClear,logoImageSelect;
-
-    EditText etCompanyInfo;
-
-    Image logo = null;
-
     private static int RESULT_LOAD_IMAGE = 22;
-    Bitmap mBitmap;
-
-    private SharedPreferences spCompanyInfo;
     final String COMPANY_INFO_PREFERENCES = "company_info_preferences";
+    ImageView logoImageView;
+    Button logoImageClear,logoImageSelect;
+    EditText etCompanyInfo;
+    Image logo = null;
+    Bitmap mBitmap;
+    private SharedPreferences spCompanyInfo;
     private SharedPreferences.Editor editor;
 
     private CheckBox saveAsDefault;
@@ -94,6 +80,31 @@ public class TabPdfFragment extends Fragment implements View.OnClickListener {
     private String[] graphData = null;
     private Bitmap graph = null;
     private String companyInfoString = "";
+
+    public static void copyFile(File sourceFile, File destFile) throws IOException {
+        if (!destFile.getParentFile().exists())
+            destFile.getParentFile().mkdirs();
+
+        if (!destFile.exists()) {
+            destFile.createNewFile();
+        }
+
+        FileChannel source = null;
+        FileChannel destination = null;
+
+        try {
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(destFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+        } finally {
+            if (source != null) {
+                source.close();
+            }
+            if (destination != null) {
+                destination.close();
+            }
+        }
+    }
 
     @Nullable
     @Override
@@ -189,6 +200,7 @@ public class TabPdfFragment extends Fragment implements View.OnClickListener {
                 break;
         }
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -236,31 +248,6 @@ public class TabPdfFragment extends Fragment implements View.OnClickListener {
                 copyFile(file,fileToSave);
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-        }
-    }
-
-    public static void copyFile(File sourceFile, File destFile) throws IOException {
-        if (!destFile.getParentFile().exists())
-            destFile.getParentFile().mkdirs();
-
-        if (!destFile.exists()) {
-            destFile.createNewFile();
-        }
-
-        FileChannel source = null;
-        FileChannel destination = null;
-
-        try {
-            source = new FileInputStream(sourceFile).getChannel();
-            destination = new FileOutputStream(destFile).getChannel();
-            destination.transferFrom(source, 0, source.size());
-        } finally {
-            if (source != null) {
-                source.close();
-            }
-            if (destination != null) {
-                destination.close();
             }
         }
     }

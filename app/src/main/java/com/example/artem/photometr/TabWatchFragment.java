@@ -52,20 +52,10 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     private static final int idPercent[]={R.id.cell_procent_k1,R.id.cell_procent_n,R.id.cell_procent_p,R.id.cell_procent_ks,R.id.cell_procent_kcl,R.id.cell_procent_k2,R.id.cell_procent_ca,R.id.cell_procent_mg,R.id.cell_procent_b,R.id.cell_procent_cu,R.id.cell_procent_k3,R.id.cell_procent_zn,R.id.cell_procent_mn,R.id.cell_procent_fe,R.id.cell_procent_k4,R.id.cell_procent_mo,R.id.cell_procent_co,R.id.cell_procent_j,R.id.cell_procent_k5};
     private static final int idKgOnHa[]={R.id.cell_kg_on_ha_k1,R.id.cell_kg_on_ha_n,R.id.cell_kg_on_ha_p,R.id.cell_kg_on_ha_ks,R.id.cell_kg_on_ha_kcl,R.id.cell_kg_on_ha_k2,R.id.cell_kg_on_ha_ca,R.id.cell_kg_on_ha_mg,R.id.cell_kg_on_ha_b,R.id.cell_kg_on_ha_cu,R.id.cell_kg_on_ha_k3,R.id.cell_kg_on_ha_zn,R.id.cell_kg_on_ha_mn,R.id.cell_kg_on_ha_fe,R.id.cell_kg_on_ha_k4,R.id.cell_kg_on_ha_mo,R.id.cell_kg_on_ha_co,R.id.cell_kg_on_ha_j,R.id.cell_kg_on_ha_k5};
     private static final int idDb[]={R.id.cell_dv_k1,R.id.cell_dv_n,R.id.cell_dv_p,R.id.cell_dv_ks,R.id.cell_dv_kcl,R.id.cell_dv_k2,R.id.cell_dv_ca,R.id.cell_dv_mg,R.id.cell_dv_b,R.id.cell_dv_cu,R.id.cell_dv_k3,R.id.cell_dv_zn,R.id.cell_dv_mn,R.id.cell_dv_fe,R.id.cell_dv_k4,R.id.cell_dv_mo,R.id.cell_dv_co,R.id.cell_dv_j,R.id.cell_dv_k5};
-
-    private static TextView
-            k1m, nm, pm, ksm, kclm, k2m, cam, mgm, bm, cum, k3m, znm, mnm, fem, k4m, mom, com, jm, k5m,
-            k1100pr, n100pr, p100pr, ks100pr, kcl100pr, k2100pr, ca100pr, mg100pr, b100pr, cu100pr, k3100pr, zn100pr, mn100pr, fe100pr, k4100pr, mo100pr, co100pr, j100pr, k5100pr,
-            k1pr, npr, ppr, kspr, kclpr, k2pr, capr, mgpr, bpr, cupr, k3pr, znpr, mnpr, fepr, k4pr, mopr, copr, jpr, k5pr,
-            k1kgha, nkgha, pkgha, kskgha, kclkgha, k2kgha, cakgha, mgkgha, bkgha, cukgha, k3kgha, znkgha, mnkgha, fekgha, k4kgha, mokgha, cokgha, jkgha, k5kgha,
-            k1db, ndb, pdb, ksdb, kcldb, k2db, cadb, mgdb, bdb, cudb, k3db, zndb, mndb, fedb, k4db, modb, codb, jdb, k5db;
-
-    private static final TextView measuring[]={k1m, nm, pm, ksm, kclm, k2m, cam, mgm, bm, cum, k3m, znm, mnm, fem, k4m, mom, com, jm, k5m};
     private static final TextView hundPerc[]={k1100pr, n100pr, p100pr, ks100pr, kcl100pr, k2100pr, ca100pr, mg100pr, b100pr, cu100pr, k3100pr, zn100pr, mn100pr, fe100pr, k4100pr, mo100pr, co100pr, j100pr, k5100pr};
     private static final TextView percent[]={k1pr, npr, ppr, kspr, kclpr, k2pr, capr, mgpr, bpr, cupr, k3pr, znpr, mnpr, fepr, k4pr, mopr, copr, jpr, k5pr};
     private static final TextView kgOnHa[]={k1kgha, nkgha, pkgha, kskgha, kclkgha, k2kgha, cakgha, mgkgha, bkgha, cukgha, k3kgha, znkgha, mnkgha, fekgha, k4kgha, mokgha, cokgha, jkgha, k5kgha};
     private static final TextView db[]={k1db, ndb, pdb, ksdb, kcldb, k2db, cadb, mgdb, bdb, cudb, k3db, zndb, mndb, fedb, k4db, modb, codb, jdb, k5db};
-
     private static final double mHundPerc[]=new double[19];
     private static final double mPercent[]=new double[19];
     private static final double mKgOnHa[]=new double[19];
@@ -74,25 +64,27 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     private static final double b[]=new double[19];
     private static final double kgOnHa100perc[]={0,50,20,50,10,0,40,5,0.01,0.2,0,0.5,0.5,0.5,0,0.5,0.03,0.02,0};
     private static final double db100perc[]={0,23,5.4,22.5,5.2,0,8.8,0.5,11,52,0,115,160,100,0,270,13.6,15.3,0};
+    private static TextView
+            k1m, nm, pm, ksm, kclm, k2m, cam, mgm, bm, cum, k3m, znm, mnm, fem, k4m, mom, com, jm, k5m,
+            k1100pr, n100pr, p100pr, ks100pr, kcl100pr, k2100pr, ca100pr, mg100pr, b100pr, cu100pr, k3100pr, zn100pr, mn100pr, fe100pr, k4100pr, mo100pr, co100pr, j100pr, k5100pr,
+            k1pr, npr, ppr, kspr, kclpr, k2pr, capr, mgpr, bpr, cupr, k3pr, znpr, mnpr, fepr, k4pr, mopr, copr, jpr, k5pr,
+            k1kgha, nkgha, pkgha, kskgha, kclkgha, k2kgha, cakgha, mgkgha, bkgha, cukgha, k3kgha, znkgha, mnkgha, fekgha, k4kgha, mokgha, cokgha, jkgha, k5kgha,
+            k1db, ndb, pdb, ksdb, kcldb, k2db, cadb, mgdb, bdb, cudb, k3db, zndb, mndb, fedb, k4db, modb, codb, jdb, k5db;
+    private static final TextView measuring[] = {k1m, nm, pm, ksm, kclm, k2m, cam, mgm, bm, cum, k3m, znm, mnm, fem, k4m, mom, com, jm, k5m};
 
-
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     private CombinedChart mChart;
     private String[] elements;
     private int[] mValues;
     private CombinedData data;
     private CombinedChart combinedChart;
-
     private RelativeLayout table;
     private FrameLayout frame;
     private RelativeLayout frameLayout;
     private boolean isTableVisible = false;
-
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
-
-
     private Button buttonViewSwitcher;
     private Button buttonWatchSettings;
     private RelativeLayout buttonViewSwitcherLayout;

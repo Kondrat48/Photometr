@@ -5,7 +5,7 @@
     <string name="app_name">Фотометр</string>
     <string name="title_watch">Просмотр</string>
     <string name="title_document_settings">Параметры</string>
-    <string name="title_print">Печать</string>
+    <string name="title_document">Документ</string>
     <string name="title_open_file">Открыть файл</string>
     <string name="title_download_file">Загрузить файл с устройства</string>
     <string name="title_app_settings">Настройки</string>

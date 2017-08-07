@@ -4,23 +4,23 @@
 
     <item
         android:id="@+id/navigation_watch"
-        app:showAsAction="ifRoom"
         android:enabled="true"
         android:icon="@drawable/ic_watch_black_24dp"
-        android:title="@string/title_watch"/>
+        android:title="@string/title_watch"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/navigation_document_settings"
-        app:showAsAction="ifRoom"
         android:enabled="true"
         android:icon="@drawable/ic_document_settings_black_24dp"
-        android:title="@string/title_document_settings"/>
+        android:title="@string/title_document_settings"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/navigation_print"
-        app:showAsAction="ifRoom"
         android:enabled="true"
-        android:icon="@drawable/ic_print_black_24dp"
-        android:title="@string/title_print"/>
+        android:icon="@drawable/ic_document_black_24dp"
+        android:title="@string/title_document"
+        app:showAsAction="ifRoom" />
 
 </menu>

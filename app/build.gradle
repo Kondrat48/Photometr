@@ -35,6 +35,5 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
     compile 'com.itextpdf:itextpdf:5.5.9'
     compile 'com.github.barteksc:android-pdf-viewer:2.7.0-beta.1'
-    compile project(':usbSerialForAndroid')
     compile 'com.github.felHR85:UsbSerial:4.5'
 }

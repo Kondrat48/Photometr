@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -30,16 +29,12 @@ import java.io.OutputStreamWriter;
  */
 
 public class TabDocumentSettingsFragment extends Fragment implements TextWatcher {
+    FragmentDocumentSettingsBinding binding;
     private String stFld;
     private String stCmt;
-
     private Uri mCmtUri;
     private Uri mFldUri;
     private boolean changed = false;
-
-    FragmentDocumentSettingsBinding binding;
-
-
 
     @Nullable
     @Override
