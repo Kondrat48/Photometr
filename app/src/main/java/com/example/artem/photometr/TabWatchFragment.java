@@ -46,7 +46,12 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
 
 
-
+    private static TextView
+            k1m, nm, pm, ksm, kclm, k2m, cam, mgm, bm, cum, k3m, znm, mnm, fem, k4m, mom, com, jm, k5m,
+            k1100pr, n100pr, p100pr, ks100pr, kcl100pr, k2100pr, ca100pr, mg100pr, b100pr, cu100pr, k3100pr, zn100pr, mn100pr, fe100pr, k4100pr, mo100pr, co100pr, j100pr, k5100pr,
+            k1pr, npr, ppr, kspr, kclpr, k2pr, capr, mgpr, bpr, cupr, k3pr, znpr, mnpr, fepr, k4pr, mopr, copr, jpr, k5pr,
+            k1kgha, nkgha, pkgha, kskgha, kclkgha, k2kgha, cakgha, mgkgha, bkgha, cukgha, k3kgha, znkgha, mnkgha, fekgha, k4kgha, mokgha, cokgha, jkgha, k5kgha,
+            k1db, ndb, pdb, ksdb, kcldb, k2db, cadb, mgdb, bdb, cudb, k3db, zndb, mndb, fedb, k4db, modb, codb, jdb, k5db;
     private static final int idMeasuring[]={R.id.cell_changes_k1,R.id.cell_changes_n,R.id.cell_changes_p,R.id.cell_changes_ks,R.id.cell_changes_kcl,R.id.cell_changes_k2,R.id.cell_changes_ca,R.id.cell_changes_mg,R.id.cell_changes_b,R.id.cell_changes_cu,R.id.cell_changes_k3,R.id.cell_changes_zn,R.id.cell_changes_mn,R.id.cell_changes_fe,R.id.cell_changes_k4,R.id.cell_changes_mo,R.id.cell_changes_co,R.id.cell_changes_j,R.id.cell_changes_k5};
     private static final int idHundPerc[]={R.id.cell_100_procent_k1,R.id.cell_100_procent_n,R.id.cell_100_procent_p,R.id.cell_100_procent_ks,R.id.cell_100_procent_kcl,R.id.cell_100_procent_k2,R.id.cell_100_procent_ca,R.id.cell_100_procent_mg,R.id.cell_100_procent_b,R.id.cell_100_procent_cu,R.id.cell_100_procent_k3,R.id.cell_100_procent_zn,R.id.cell_100_procent_mn,R.id.cell_100_procent_fe,R.id.cell_100_procent_k4,R.id.cell_100_procent_mo,R.id.cell_100_procent_co,R.id.cell_100_procent_j,R.id.cell_100_procent_k5};
     private static final int idPercent[]={R.id.cell_procent_k1,R.id.cell_procent_n,R.id.cell_procent_p,R.id.cell_procent_ks,R.id.cell_procent_kcl,R.id.cell_procent_k2,R.id.cell_procent_ca,R.id.cell_procent_mg,R.id.cell_procent_b,R.id.cell_procent_cu,R.id.cell_procent_k3,R.id.cell_procent_zn,R.id.cell_procent_mn,R.id.cell_procent_fe,R.id.cell_procent_k4,R.id.cell_procent_mo,R.id.cell_procent_co,R.id.cell_procent_j,R.id.cell_procent_k5};
@@ -64,12 +69,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     private static final double b[]=new double[19];
     private static final double kgOnHa100perc[]={0,50,20,50,10,0,40,5,0.01,0.2,0,0.5,0.5,0.5,0,0.5,0.03,0.02,0};
     private static final double db100perc[]={0,23,5.4,22.5,5.2,0,8.8,0.5,11,52,0,115,160,100,0,270,13.6,15.3,0};
-    private static TextView
-            k1m, nm, pm, ksm, kclm, k2m, cam, mgm, bm, cum, k3m, znm, mnm, fem, k4m, mom, com, jm, k5m,
-            k1100pr, n100pr, p100pr, ks100pr, kcl100pr, k2100pr, ca100pr, mg100pr, b100pr, cu100pr, k3100pr, zn100pr, mn100pr, fe100pr, k4100pr, mo100pr, co100pr, j100pr, k5100pr,
-            k1pr, npr, ppr, kspr, kclpr, k2pr, capr, mgpr, bpr, cupr, k3pr, znpr, mnpr, fepr, k4pr, mopr, copr, jpr, k5pr,
-            k1kgha, nkgha, pkgha, kskgha, kclkgha, k2kgha, cakgha, mgkgha, bkgha, cukgha, k3kgha, znkgha, mnkgha, fekgha, k4kgha, mokgha, cokgha, jkgha, k5kgha,
-            k1db, ndb, pdb, ksdb, kcldb, k2db, cadb, mgdb, bdb, cudb, k3db, zndb, mndb, fedb, k4db, modb, codb, jdb, k5db;
+
     private static final TextView measuring[] = {k1m, nm, pm, ksm, kclm, k2m, cam, mgm, bm, cum, k3m, znm, mnm, fem, k4m, mom, com, jm, k5m};
 
     static {
