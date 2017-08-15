@@ -47,7 +47,7 @@ public class UsbService extends Service {
     private UsbDevice device;
     private UsbDeviceConnection connection;
     private CDCSerialDevice serialPort;
-    private boolean serialPortConnected;
+    public boolean serialPortConnected;
     /*
      * Different notifications from OS will be received here (USB attached, detached, permission responses...)
      * About BroadcastReceiver: http://developer.android.com/reference/android/content/BroadcastReceiver.html
@@ -85,7 +85,7 @@ public class UsbService extends Service {
     private byte[] frez = new byte[71];
     private int[] arrValues;
     private long rzltDate;
-    private byte[] readResult;
+    private byte[] readResult = null;
     /*
          *  Data received from serial port will be received here. Just populate onReceivedData with your code
          *  In this particular example. byte stream is converted to String and send to UI thread to
@@ -228,7 +228,9 @@ public class UsbService extends Service {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return (readResult[0] == b);
+        if(readResult!=null)
+            return (readResult[0] == b);
+        else return setByte(b);
     }
 
     private boolean serialRW(int adr) throws InterruptedException {
@@ -332,10 +334,17 @@ public class UsbService extends Service {
             arrAfter[i] = (btArr[i * 2 + 1 + 38] << 8) + btArr[i * 2 + 38];
         }
         arrValues = new int[19];
-        for (i = 0; i < 19; i++)
-            if (arrAfter[i] > arrBefore[i]) arrValues[i] = arrAfter[i] - arrBefore[i];
+        for (i = 0; i < 19; i++){
+            int value;
+            if (arrAfter[i] > arrBefore[i]) {
+                value = arrAfter[i] - arrBefore[i];
+                if(value>256)value-=256;
+                arrValues[i]=value;
+            }
             else arrValues[i] = 0;
-        rzltDate = Date.UTC(2000 + Integer.parseInt(Integer.toHexString(btArr[81])), Integer.parseInt(Integer.toHexString(btArr[80])), Integer.parseInt(Integer.toHexString(btArr[79])), Integer.parseInt(Integer.toHexString(btArr[78])), Integer.parseInt(Integer.toHexString(btArr[77])), Integer.parseInt(Integer.toHexString(btArr[76])));
+        }
+
+        rzltDate = Date.UTC(100+Integer.parseInt(Integer.toHexString(btArr[81])), Integer.parseInt(Integer.toHexString(btArr[80])), Integer.parseInt(Integer.toHexString(btArr[79])), Integer.parseInt(Integer.toHexString(btArr[78])), Integer.parseInt(Integer.toHexString(btArr[77])), Integer.parseInt(Integer.toHexString(btArr[76])));
         rzlt = new Rzlt();
         rzlt.values = arrValues;
         rzlt.date = rzltDate;
@@ -343,7 +352,7 @@ public class UsbService extends Service {
         return result;
     }
 
-    Rzlt getResult() {
+    public Rzlt getResult() {
         return rzlt;
     }
 

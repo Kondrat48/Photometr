@@ -31,6 +31,8 @@ import android.widget.Toast;
 
 import com.felhr.usbserial.UsbSerialDevice;
 
+import com.example.artem.photometr.UsbService.Rzlt;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -106,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
     //    private Slot[] slot;
     private int[] arrValues;
     private long rzltDate;
+    private ArrayList<Rzlt> rzlts = new ArrayList<>();
 
 
     @Override
@@ -205,6 +208,8 @@ public class MainActivity extends AppCompatActivity {
             root.mkdirs();
         }
         setupViewPager(vpPager);
+
+
 
     }
 
@@ -472,7 +477,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.item_download_file:
 
-                usbService.readContent();
+                if (usbService.serialPortConnected)usbService.readContent();
+                else Toast.makeText(MainActivity.this,"Фотометр не подключен",Toast.LENGTH_SHORT).show();
+
 
 
                 return true;
@@ -542,7 +549,21 @@ public class MainActivity extends AppCompatActivity {
                                 .setPositiveButton("Загрузить", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-
+                                        if(!selectedItems.isEmpty()){
+                                            for(int j = 0; j<items.length;j++){
+                                                if(selectedItems.contains(j)){
+                                                    int numb = Integer.parseInt(String.valueOf(items[j]))-1;
+                                                    mActivity.get().usbService.readSlot(numb);
+                                                    Rzlt rzlt = mActivity.get().usbService.getResult();
+                                                    if(!mActivity.get().rzlts.contains(rzlt)){
+                                                        mActivity.get().rzlts.add(rzlt);
+                                                        mActivity.get().tabWatchFragment.update(rzlt.values,null);
+                                                    }
+                                                }
+                                            }
+                                        }else {
+                                            Toast.makeText(mActivity.get(),"Файлы для загрузки не выбраны",Toast.LENGTH_SHORT).show();
+                                        }
                                     }
                                 })
                                 .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
