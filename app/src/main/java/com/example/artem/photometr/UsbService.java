@@ -419,9 +419,11 @@ public class UsbService extends Service {
         int number;
     }
 
-    public class Rzlt {
+    public static class Rzlt {
+        int number;
         int[] values;
         long date;
+        boolean isSaved = false;
     }
 }
 

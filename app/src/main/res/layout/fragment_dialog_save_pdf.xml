@@ -11,6 +11,6 @@
         android:layout_height="wrap_content"
         android:inputType="text"
         android:maxLines="1"
-        android:maxLength="20"/>
+        android:maxLength="30"/>
 
 </RelativeLayout>

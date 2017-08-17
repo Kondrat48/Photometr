@@ -1,5 +1,6 @@
 package com.example.artem.photometr;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -35,17 +36,22 @@ import com.example.artem.photometr.UsbService.Rzlt;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Set;
 import java.util.Stack;
 
 public class MainActivity extends AppCompatActivity {
-
-    final static private int slotCount = 128;
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -56,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case UsbService.ACTION_USB_PERMISSION_GRANTED: // USB PERMISSION GRANTED
-                    Toast.makeText(context, "USB подключён", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Фотометр подключён", Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_USB_PERMISSION_NOT_GRANTED: // USB PERMISSION NOT GRANTED
                     Toast.makeText(context, "Разрешение USB не предостявлено", Toast.LENGTH_SHORT).show();
@@ -65,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(context, "Нет подключённых USB устройств", Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_USB_DISCONNECTED: // USB DISCONNECTED
-                    Toast.makeText(context, "USB устройство отключено", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Фотометр отключен", Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_USB_NOT_SUPPORTED: // USB NOT SUPPORTED
                     Toast.makeText(context, "USB устройство не поддерживается", Toast.LENGTH_SHORT).show();
@@ -73,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
-    public String logo;
     private UsbService usbService;
     private MyHandler mHandler;
     private final ServiceConnection usbConnection = new ServiceConnection() {
@@ -91,10 +96,9 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigation;
     private CustomViewPager vpPager;
     private String dateMeasurements = null;
-    private File file;
     private String path = "";
     private int values[];
-    private TabWatchFragment tabWatchFragment;
+    public TabWatchFragment tabWatchFragment;
     private TabDocumentSettingsFragment tabDocumentSettingsFragment;
     private TabPdfFragment tabPdfFragment;
     private MenuItem prevMenuItem;
@@ -104,11 +108,8 @@ public class MainActivity extends AppCompatActivity {
     private String st;
     private boolean changesInPdf = true;
     private UsbSerialDevice serial;
-    private byte[] frez = new byte[71];
-    //    private Slot[] slot;
-    private int[] arrValues;
-    private long rzltDate;
-    private ArrayList<Rzlt> rzlts = new ArrayList<>();
+    public ArrayList<Rzlt> rzlts = new ArrayList<>();
+    public int lastSelectedItemPos = 0;
 
 
     @Override
@@ -118,7 +119,8 @@ public class MainActivity extends AppCompatActivity {
             vpPager.setCurrentItem(pagesHistory.lastElement());
         } else {
             new AlertDialog.Builder(this)
-                    .setMessage("Вы уверены что хотите выйти?")
+                    .setTitle("Вы уверены что хотите выйти?")
+                    .setMessage("Все несохраненные данные будут утеряны")
                     .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -134,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mHandler = new MyHandler(this);
-//        slot = new Slot[128];
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -159,8 +160,6 @@ public class MainActivity extends AppCompatActivity {
                         vpPager.setCurrentItem(2);
                         break;
                 }
-
-
                 return false;
             }
         });
@@ -194,7 +193,11 @@ public class MainActivity extends AppCompatActivity {
                             tabPdfFragment.showPdf();
                         }
                     }
-                    if (position == 0 && values != null) tabWatchFragment.update(values, null);
+                    if (position == 0 && values != null) {
+                        tabWatchFragment.update(values, null);
+                        updateSpinner();
+                        tabWatchFragment.spinner.setSelection(lastSelectedItemPos);
+                    }
                 }
             }
 
@@ -210,7 +213,6 @@ public class MainActivity extends AppCompatActivity {
         setupViewPager(vpPager);
 
 
-
     }
 
     @Override
@@ -218,6 +220,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
+
+
     }
 
     @Override
@@ -233,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        tabWatchFragment = new TabWatchFragment();
+        tabWatchFragment = new TabWatchFragment(this);
         tabDocumentSettingsFragment = new TabDocumentSettingsFragment();
         tabPdfFragment = new TabPdfFragment();
         adapter.addFragment(tabWatchFragment);
@@ -250,7 +254,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void createNewFile(final int type) {
+    @SuppressLint("SimpleDateFormat")
+    private void createNewFile(final int type, final Integer pos) {
         final boolean[] isCreatable = {false};
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -279,8 +284,9 @@ public class MainActivity extends AppCompatActivity {
                 ending = ".pdf";
                 break;
             case 3:
-                title = "Введите название нового PNG файла";
-                ending = ".png";
+                title = "Введите название нового PHT файла";
+                ending = ".pht";
+                edt.setText(new DecimalFormat("0000").format(rzlts.get(pos).number)+"_"+new SimpleDateFormat("dd-MM-yyyy_HH;mm;ss").format(new Date(rzlts.get(pos).date))+ending);
                 break;
         }
         dialogBuilder.setTitle(title);
@@ -290,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
                 if (edt.getText().toString().length() > 0) {
                     isCreatable[0] = true;
                     String str;
-                    if (edt.getText().toString().endsWith(finalEnding) || type == 3)
+                    if (edt.getText().toString().endsWith(finalEnding))
                         str = edt.getText().toString();
                     else str = edt.getText().toString() + finalEnding;
 
@@ -307,8 +313,7 @@ public class MainActivity extends AppCompatActivity {
                             tabPdfFragment.savePdf(dir);
                             break;
                         case 3:
-                            tabWatchFragment.saveGraph(str);
-                            Toast.makeText(MainActivity.this, "Файл сохранён в " + Environment.getExternalStorageDirectory() + "/Photometer/" + str + finalEnding, Toast.LENGTH_SHORT).show();
+                            saveRzlts(str,pos);
                             break;
                     }
                     Toast.makeText(MainActivity.this, "Файл сохранён в " + Environment.getExternalStorageDirectory() + "/Photometer/" + str, Toast.LENGTH_SHORT).show();
@@ -324,7 +329,32 @@ public class MainActivity extends AppCompatActivity {
         b.show();
     }
 
+    @SuppressLint("SimpleDateFormat")
+    private void saveRzlts(String str, int pos) {
+        int i = 0, k = 0;
+        String temp;
+        StringBuilder builder = new StringBuilder();
+        while (i<=114){
+            if(i==0){temp = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(pos).date))+'\n';builder.append(temp);}
+            else if(i>=1&&i<=95)builder.append('\n');
+            else if(i>=96&&i<=114){temp = String.valueOf(rzlts.get(pos).values[k])+'\n';builder.append(temp);k++;}
+            i++;
+        }
+        File gpxfile = new File(Environment.getExternalStorageDirectory()+File.separator+ "Photometer"+File.separator+str);
+        FileWriter writer;
+        try {
+            writer = new FileWriter(gpxfile);
+            writer.write(builder.toString());
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        rzlts.get(pos).isSaved=true;
+    }
 
+
+    @SuppressLint("SimpleDateFormat")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case 20:
@@ -358,6 +388,20 @@ public class MainActivity extends AppCompatActivity {
                             }
                             i++;
                         }
+                        Rzlt rzlt = new Rzlt();
+                        try {
+                            rzlt.date = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(dateMeasurements).getTime();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        rzlt.values = values;
+                        rzlt.number = Integer.parseInt(uri.getPath().substring(uri.getPath().lastIndexOf('/')+1,uri.getPath().lastIndexOf('/')+5));
+                        rzlt.isSaved = true;
+                        rzlts.add(rzlt);
+
+                        updateSpinner();
+                        selectValues(rzlts.size()-1);
+
 
                         getSupportActionBar().setTitle(dateMeasurements);
 
@@ -437,7 +481,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.item_save_file:
                 AlertDialog dialog;
-                CharSequence[] items = {"Информация о поле", "Примечание", "Pdf документ", "График отдельно"};
+                CharSequence[] items = {"Информация о поле", "Примечание", "Pdf документ", "График(и)"};
                 final ArrayList<Integer> seletedItems = new ArrayList<>();
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Выберите какие файлы сохранить");
@@ -454,14 +498,15 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                         .setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+                            @SuppressLint("SimpleDateFormat")
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 if (seletedItems.isEmpty())
                                     Toast.makeText(MainActivity.this, "Вы не выбрали файлы для сохранения", Toast.LENGTH_SHORT).show();
-                                if (seletedItems.contains(0)) createNewFile(0);
-                                if (seletedItems.contains(1)) createNewFile(1);
-                                if (seletedItems.contains(2)) createNewFile(2);
-                                if (seletedItems.contains(3)) createNewFile(3);
+                                if (seletedItems.contains(0)) createNewFile(0, null);
+                                if (seletedItems.contains(1)) createNewFile(1, null);
+                                if (seletedItems.contains(2)) createNewFile(2, null);
+                                if (seletedItems.contains(3)) createGraphSaveDialog();
                                 seletedItems.clear();
                             }
                         })
@@ -489,6 +534,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @SuppressLint("SimpleDateFormat")
+    private void createGraphSaveDialog(){
+        final ArrayList<Integer> selectedList = new ArrayList<>();
+        CharSequence[] list = new CharSequence[rzlts.size()];
+        for(int t=0; t<rzlts.size(); t++){
+            if(!rzlts.get(t).isSaved) list[t]=new DecimalFormat("0000").format(rzlts.get(t).number)+" - "+new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(t).date));
+        }
+        if(list.length>0){
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+            alertBuilder.setTitle("Выберите какие измерения сохронять:")
+                    .setMultiChoiceItems(list, null, new DialogInterface.OnMultiChoiceClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i, boolean b) {
+                            if (b) {
+                                selectedList.add(i);
+                            } else if (selectedList.contains(i)) {
+                                selectedList.remove(Integer.valueOf(i));
+                            }
+                        }
+                    })
+                    .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if(!selectedList.isEmpty()){
+                                for(int n = 0; n < selectedList.size(); n++){
+                                    createNewFile(3,selectedList.get(n));
+                                }
+                            }else Toast.makeText(MainActivity.this, "Вы не выбрали измерения для сохранения", Toast.LENGTH_SHORT).show();
+                            selectedList.clear();
+                        }
+                    })
+                    .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        }
+                    });
+            AlertDialog dialog1 = alertBuilder.create();
+            dialog1.show();
+        } else Toast.makeText(MainActivity.this,"Нет несохраненных измерений",Toast.LENGTH_SHORT).show();
+
+    }
+
+
     private void startService(Class<?> service, ServiceConnection serviceConnection, Bundle extras) {
         if (!UsbService.SERVICE_CONNECTED) {
             Intent startService = new Intent(this, service);
@@ -513,6 +602,55 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(UsbService.ACTION_USB_NOT_SUPPORTED);
         filter.addAction(UsbService.ACTION_USB_PERMISSION_NOT_GRANTED);
         registerReceiver(mUsbReceiver, filter);
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public void selectValues(int pos) {
+        if(lastSelectedItemPos!=pos){
+            values = rzlts.get(pos).values;
+            if(lastSelectedItemPos!=pos){
+                tabWatchFragment.update(values,null);
+                dateMeasurements = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(pos).date));
+                changesInPdf = true;
+            }
+
+            getSupportActionBar().setTitle(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(pos).date)));
+            if(tabWatchFragment.spinner.getSelectedItemPosition()!=pos)tabWatchFragment.spinner.setSelection(pos);
+            lastSelectedItemPos = pos;
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public void closeItem(int pos) {
+        rzlts.remove(pos);
+        ArrayList<String> dates = new ArrayList<>();
+        if(rzlts.size()>0){
+            updateSpinner();
+            if(pos<lastSelectedItemPos){
+                tabWatchFragment.spinner.setSelection(pos);
+                lastSelectedItemPos = pos;
+            }
+            else if(pos==lastSelectedItemPos){
+                selectValues(0);
+            }
+        } else {
+            dates.add("Пусто");
+            values = null;
+            tabWatchFragment.updateSpinner(dates);
+            tabWatchFragment.update(values,null);
+        }
+
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public void updateSpinner(){
+        ArrayList<String> dates = new ArrayList<>();
+        String temp;
+        for(int i = 0; i<rzlts.size();i++){
+            temp = new DecimalFormat("0000").format(rzlts.get(i).number)+" - "+new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(i).date));
+            dates.add(temp);
+        }
+        tabWatchFragment.updateSpinner(dates);
     }
 
     private static class MyHandler extends Handler {
@@ -555,9 +693,12 @@ public class MainActivity extends AppCompatActivity {
                                                     int numb = Integer.parseInt(String.valueOf(items[j]))-1;
                                                     mActivity.get().usbService.readSlot(numb);
                                                     Rzlt rzlt = mActivity.get().usbService.getResult();
+                                                    rzlt.number = numb+1;
                                                     if(!mActivity.get().rzlts.contains(rzlt)){
                                                         mActivity.get().rzlts.add(rzlt);
-                                                        mActivity.get().tabWatchFragment.update(rzlt.values,null);
+                                                        mActivity.get().updateSpinner();
+                                                        mActivity.get().lastSelectedItemPos = -1;
+                                                        mActivity.get().selectValues(mActivity.get().rzlts.size()-1);
                                                     }
                                                 }
                                             }

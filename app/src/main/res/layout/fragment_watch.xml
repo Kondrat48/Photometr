@@ -5,15 +5,26 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">>
 
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:id="@+id/spinner">
+
+    </Spinner>
+
 
     <RelativeLayout
         android:id="@+id/chartLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginBottom="92dp">
+        android:layout_marginBottom="92dp"
+        android:layout_below="@+id/spinner">
         <FrameLayout
             android:id="@+id/chart"
             android:layout_width="match_parent"
@@ -46,12 +57,12 @@
         android:orientation="vertical"
         android:visibility="invisible"
         android:id="@+id/table"
-        android:layout_marginTop="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginBottom="92dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/spinner">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

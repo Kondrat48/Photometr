@@ -10,10 +10,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -33,6 +36,7 @@ import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -87,23 +91,33 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     private boolean isTableVisible = false;
     private Button buttonViewSwitcher;
     private Button buttonWatchSettings;
+    public Spinner spinner;
     private RelativeLayout buttonViewSwitcherLayout;
+    private final WeakReference<MainActivity> mActivity;
+    private LayoutInflater inflater;
+
+    public TabWatchFragment(MainActivity activity) {
+        mActivity = new WeakReference<>(activity);
+    }
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_watch,container,false);
+        this.inflater = inflater;
 
         table = view.findViewById(R.id.table);
         frame = view.findViewById(R.id.chart);
+        spinner = view.findViewById(R.id.spinner);
         combinedChart = view.findViewById(R.id.chartInvisible);
         frameLayout = view.findViewById(R.id.chartLayout);
         buttonWatchSettings = view.findViewById(R.id.settingsButtonWatch);
+
         buttonWatchSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO write method!!!
+                //TODO write method
             }
         });
         for(int i = 0; i<= measuring.length-1; i++) measuring[i] = view.findViewById(idMeasuring[i]);
@@ -170,8 +184,14 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
         return view;
     }
 
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-
+        ArrayList<String> dates = new ArrayList<>();
+        dates.add("Пусто");
+        updateSpinner(dates);
+    }
 
     public void createGraph(){
         elements = new String[]{"K1", "N", "P", "KS", "KCl", "K2", "Ca", "Mg", "B", "Cu", "K3", "Zn", "Mn", "Fe", "K4", "Mo", "Co", "J", "K5"};
@@ -256,27 +276,41 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     public void animateChart(){mChart.animateXY(1000,1000);}
 
 
+    public void updateSpinner(ArrayList<String> dates){
+        spinner.setAdapter(new CustomArrayAdapter(getContext(),R.layout.custom_spinner_items,dates, mActivity));
+    }
+
+
     public void update(int[] values, File file){
 
         if(file!=null) ;
 
         mValues = values;
-
-
         data = new CombinedData();
 
+        if(values!=null){
+            data.setData(generateBarData(values));
+            data.setData(generateLineData(values));
 
-        data.setData(generateBarData(values));
-        data.setData(generateLineData(values));
+            mChart.setData(data);
+            mChart.invalidate();
 
-        mChart.setData(data);
-        mChart.invalidate();
+            animateChart();
 
-        animateChart();
+            for(int i = 0; i<=values.length-1;i++) measuring[i].setText(Integer.toString(values[i]));
+            count(values);
+        } else {
+            data.setData(generateLineData(new int[]{0}));
+            data.setData(generateBarData(new int[]{0}));
+
+            mChart.setData(data);
+            mChart.invalidate();
+
+            for(int i = 0; i<19;i++) measuring[i].setText(Integer.toString(0));
+            count(values);
+        }
 
 
-        for(int i = 0; i<=values.length-1;i++) measuring[i].setText(Integer.toString(values[i]));
-        count(values);
     }
 
     @Override
@@ -301,6 +335,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     }
 
     private void count(int[] values){
+        if(values == null)values = new int[19];
         String temp = null;
         NumberFormat formatter = new DecimalFormat("#0.##");
         for(int i = 0; i<=values.length-1;i++){
@@ -324,6 +359,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
         RelativeLayout.LayoutParams paramsFrame = (RelativeLayout.LayoutParams) frameLayout.getLayoutParams();
         RelativeLayout.LayoutParams paramsTable = (RelativeLayout.LayoutParams) table.getLayoutParams();
         RelativeLayout.LayoutParams paramsButton = (RelativeLayout.LayoutParams) buttonViewSwitcherLayout.getLayoutParams();
+        RelativeLayout.LayoutParams paramsSpinner = (RelativeLayout.LayoutParams) spinner.getLayoutParams();
 
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             paramsFrame.bottomMargin = 20*d;
@@ -331,6 +367,8 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
             paramsTable.bottomMargin = 20*d;
             paramsTable.rightMargin = 92*d;
+
+            paramsSpinner.rightMargin = 92*d;
 
             paramsButton.rightMargin = 15*d;
             paramsButton.bottomMargin = 0;
@@ -346,6 +384,8 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
             paramsTable.bottomMargin = 92*d;
             paramsTable.rightMargin = 20*d;
+
+            paramsSpinner.rightMargin = 20*d;
 
             paramsButton.rightMargin = 0;
             paramsButton.bottomMargin = 15*d;
