@@ -3,6 +3,7 @@ package com.example.artem.photometr;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -69,8 +70,22 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
                     if(mActivity.get().rzlts.get(position).isSaved)
                         mActivity.get().closeItem(position);
                     else {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                        builder.setTitle("\""+new DecimalFormat("0000").format(mActivity.get().rzlts.get(position).number)+" - "+new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(mActivity.get().rzlts.get(position).date))+"\". Файл не сохранен. Сохранить?");
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity.get());
+                        builder.setTitle("\""+new DecimalFormat("0000").format(mActivity.get().rzlts.get(position).number)+" - "+new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(mActivity.get().rzlts.get(position).date))+"\". Файл не сохранен. Сохранить?")
+                                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        mActivity.get().createNewFile(3,position);
+                                        mActivity.get().closeItem(position);
+                                    }
+                                })
+                                .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        mActivity.get().closeItem(position);
+                                    }
+                                })
+                                .setCancelable(false);
                     }
                 }
             });

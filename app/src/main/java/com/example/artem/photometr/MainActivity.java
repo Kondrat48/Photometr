@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
     private UsbSerialDevice serial;
     public ArrayList<Rzlt> rzlts = new ArrayList<>();
     public int lastSelectedItemPos = 0;
+    private boolean pdfLoafed = false;
 
 
     @Override
@@ -255,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     @SuppressLint("SimpleDateFormat")
-    private void createNewFile(final int type, final Integer pos) {
+    public void createNewFile(final int type, final Integer pos) {
         final boolean[] isCreatable = {false};
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -278,6 +279,12 @@ public class MainActivity extends AppCompatActivity {
                 edt.setText("Поле №" + tabDocumentSettingsFragment.getData()[2] + ending);
                 break;
             case 2:
+                if(!pdfLoafed){
+                    vpPager.setCurrentItem(2);
+                    pagesHistory.pop();
+                    vpPager.setCurrentItem(pagesHistory.lastElement());
+                    pdfLoafed = true;
+                }
                 if (doChangesInPdf())
                     tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements, tabWatchFragment.getData(), tabWatchFragment.getGraph());
                 title = "Введите название нового PDF файла";
@@ -379,9 +386,10 @@ public class MainActivity extends AppCompatActivity {
                                 k++;
                             }
                             if (k == 1) dateMeasurements = st.substring(0, i);
-                            else if (k == 96) m = i;
+                            else if (k == 96) m = i-10;
                             else if (k > 96 && st.toCharArray()[i] == '\n') {
                                 temp = st.substring(m, i);
+                                if(temp.contains("\n"))temp=temp.substring(temp.lastIndexOf('\n')+1);
                                 values[r] = Integer.parseInt(temp);
                                 m = i + 1;
                                 r++;
@@ -537,7 +545,9 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SimpleDateFormat")
     private void createGraphSaveDialog(){
         final ArrayList<Integer> selectedList = new ArrayList<>();
-        CharSequence[] list = new CharSequence[rzlts.size()];
+        int p = 0;
+        for(int y = 0;y<rzlts.size();y++)if(!rzlts.get(y).isSaved)p++;
+        CharSequence[] list = new CharSequence[p];
         for(int t=0; t<rzlts.size(); t++){
             if(!rzlts.get(t).isSaved) list[t]=new DecimalFormat("0000").format(rzlts.get(t).number)+" - "+new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(t).date));
         }
@@ -626,18 +636,22 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> dates = new ArrayList<>();
         if(rzlts.size()>0){
             updateSpinner();
-            if(pos<lastSelectedItemPos){
+            if(pos<=lastSelectedItemPos){
                 tabWatchFragment.spinner.setSelection(pos);
+                if(pos==lastSelectedItemPos){
+                    selectValues(0);
+                    for(int y = 0;y<19;y++)values[y]=rzlts.get(0).values[y];
+                    tabWatchFragment.update(values,null);
+                }
                 lastSelectedItemPos = pos;
             }
-            else if(pos==lastSelectedItemPos){
-                selectValues(0);
-            }
+
         } else {
             dates.add("Пусто");
             values = null;
             tabWatchFragment.updateSpinner(dates);
             tabWatchFragment.update(values,null);
+            getSupportActionBar().setTitle(R.string.app_name);
         }
 
     }

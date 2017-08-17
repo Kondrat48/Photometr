@@ -32,6 +32,7 @@
         </FrameLayout>
     </RelativeLayout>
 
+    <!--suppress DeprecatedClassUsageInspection -->
     <AbsoluteLayout
         android:layout_width="wrap_content"
         android:layout_height="fill_parent">
