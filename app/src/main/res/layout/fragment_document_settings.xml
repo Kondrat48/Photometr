@@ -1923,7 +1923,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="30dp"
                     android:textSize="@dimen/text_big_size"
-                    android:maxLength="100"
+                    android:maxLength="300"
                     android:textColorHint="@color/colorPrimary"
                     android:hint="@string/hint_note"/>
             </android.support.design.widget.TextInputLayout>
