@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(context, "Разрешение USB не предостявлено", Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_NO_USB: // NO USB CONNECTED
-                    Toast.makeText(context, "Нет подключённых USB устройств", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context, "Нет подключённых USB устройств", Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_USB_DISCONNECTED: // USB DISCONNECTED
                     Toast.makeText(context, "Фотометр отключен", Toast.LENGTH_SHORT).show();
@@ -427,6 +427,9 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Формат файла не поддерживается", Toast.LENGTH_SHORT).show();
 
                 }
+                break;
+            case 78:
+                tabPdfFragment.onActivityResult(requestCode, resultCode, data);
                 break;
         }
 

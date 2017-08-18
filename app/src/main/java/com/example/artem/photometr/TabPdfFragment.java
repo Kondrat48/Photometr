@@ -1,28 +1,29 @@
 package com.example.artem.photometr;
 
-import android.content.Context;
-import android.content.DialogInterface;
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.net.Uri;
+import android.support.v4.app.DialogFragment;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.text.method.ScrollingMovementMethod;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnRenderListener;
+import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -53,33 +54,28 @@ import static android.app.Activity.RESULT_OK;
  * Created by User on 2/28/2017.
  */
 
-public class TabPdfFragment extends Fragment implements View.OnClickListener {
+public class TabPdfFragment extends Fragment {
 
     private static int RESULT_LOAD_IMAGE = 22;
     final String COMPANY_INFO_PREFERENCES = "company_info_preferences";
-    ImageView logoImageView;
-    Button logoImageClear,logoImageSelect;
-    EditText etCompanyInfo;
-    Image logo = null;
-    Bitmap mBitmap;
-    private SharedPreferences spCompanyInfo;
-    private SharedPreferences.Editor editor;
 
-    private CheckBox saveAsDefault;
+    public Bitmap logo = null;
+
 
     private PDFView frame;
 
     private BaseFont roman;
     private Font bfRoman;
     private Font bfRomanBold;
-    private Button buttonSettings;
 
     private File file;
-    private String[] data = null;
-    private String date = null;
-    private String[] graphData = null;
-    private Bitmap graph = null;
-    private String companyInfoString = "";
+    public String[] data = null;
+    public String date = null;
+    public String[] graphData = null;
+    public Bitmap graph = null;
+    public String companyInfoString = "";
+    private InfoDialogFragment fragment;
+    public Uri logoUri;
 
     public static void copyFile(File sourceFile, File destFile) throws IOException {
         if (!destFile.getParentFile().exists())
@@ -112,36 +108,25 @@ public class TabPdfFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_print,container,false);
         frame = view.findViewById(R.id.container_print);
         file = new File(getActivity().getFilesDir()+"/temp.pdf");
-        buttonSettings = view.findViewById(R.id.settingsButtonPdf);
-        spCompanyInfo = getActivity().getSharedPreferences(COMPANY_INFO_PREFERENCES, Context.MODE_PRIVATE);
+        if(new File(getActivity().getFilesDir()+"/temp.png").exists()){
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            logo = BitmapFactory.decodeFile(getActivity().getFilesDir()+"/temp.png", options);
+        }
+        Button buttonSettings = view.findViewById(R.id.settingsButtonPdf);
+        SharedPreferences spCompanyInfo = getActivity().getSharedPreferences(COMPANY_INFO_PREFERENCES, Context.MODE_PRIVATE);
         companyInfoString = spCompanyInfo.getString(COMPANY_INFO_PREFERENCES, "");
         buttonSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog dialog;
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-                View layoutView = layoutInflater.inflate(R.layout.fragment_dialog_company_info, null);
-                builder.setView(layoutView)
-                        .setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                allowChanges();
-                                update(data,date,graphData,graph);
-                            }
-                        })
-                        .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        });
-                setDefaultValues(layoutView);
-                dialog = builder.create();
-                dialog.show();
-//                FragmentManager manager = getFragmentManager();
-//                DialogCompanyInformationFragment dialog = new DialogCompanyInformationFragment();
-//                dialog.show(manager,"");
+                @SuppressLint("CommitTransaction") FragmentTransaction ft = getFragmentManager().beginTransaction();
+                Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+                if (prev != null) {
+                    ft.remove(prev);
+                }
+                ft.addToBackStack(null);
+                fragment = InfoDialogFragment.newInstance(TabPdfFragment.this, logoUri);
+                fragment.show(ft,"dialog");
             }
         });
 
@@ -157,70 +142,8 @@ public class TabPdfFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
-    private void setDefaultValues(View view){
 
-        logoImageView = view.findViewById(R.id.image_view_logo);
-        logoImageClear = view.findViewById(R.id.button_logo_img_clear);
-        logoImageSelect = view.findViewById(R.id.button_logo_change_img);
-        etCompanyInfo = view.findViewById(R.id.edit_text_company_information);
-        saveAsDefault = view.findViewById(R.id.checkbox_save_as_default);
 
-        logoImageClear.setOnClickListener(this);
-        logoImageSelect.setOnClickListener(this);
-
-        etCompanyInfo.setHorizontalScrollBarEnabled(true);
-        etCompanyInfo.setScrollbarFadingEnabled(true);
-        etCompanyInfo.setHorizontallyScrolling(true);
-        etCompanyInfo.setMovementMethod(new ScrollingMovementMethod());
-        etCompanyInfo.setText(companyInfoString);
-    }
-
-    private void allowChanges(){
-        if(saveAsDefault.isEnabled()){
-            editor = spCompanyInfo.edit();
-            editor.putString(COMPANY_INFO_PREFERENCES, etCompanyInfo.getText().toString());
-            companyInfoString = etCompanyInfo.getText().toString();
-            editor.commit();
-        }
-
-    }
-
-    @Override
-    public void onClick(View view) {
-
-        switch (view.getId()) {
-            case R.id.button_logo_change_img:
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, RESULT_LOAD_IMAGE);
-                break;
-            case R.id.button_logo_img_clear:
-                logoImageView.setBackgroundResource(R.color.image_background);
-                logoImageView.setImageResource(R.drawable.image);
-                break;
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            try {
-                final Uri imageUri = data.getData();
-                final InputStream imageStream = getContext().getContentResolver().openInputStream(imageUri);
-                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                logoImageView.setImageBitmap(selectedImage);
-                logoImageView.setBackgroundResource(R.color.transparent);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Toast.makeText(getActivity(), "Чтото пошло не так", Toast.LENGTH_LONG).show();
-            }
-
-        }else {
-            Toast.makeText(getActivity(), "Вы не выбрали изображение",Toast.LENGTH_LONG).show();
-        }
-
-    }
 
     public void update(String[] data, String date, String[] graphData, Bitmap graph){
         try {
@@ -252,26 +175,68 @@ public class TabPdfFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void addPage(Document document, String[] data, String companyData, String date, String[] graphData, Bitmap graph, Image logo) {
+    private void addPage(Document document, String[] data, String companyData, String date, String[] graphData, Bitmap graph, Bitmap logoBitmsp) {
         try{
-            if(logo==null){
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.pdf_default_image);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG,100,stream);
-                logo = Image.getInstance(stream.toByteArray());
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.pdf_default_image);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG,100,stream);
+            Image image = Image.getInstance(stream.toByteArray());
+            image.scaleToFit(300,50);
+
+            PdfPTable main = new PdfPTable(2);
+            main.setWidthPercentage(100);
+            PdfPCell cellMain = new PdfPCell();
+            cellMain.setBorder(Rectangle.NO_BORDER);
+            cellMain.addElement(image);
+            main.addCell(cellMain);
+
+            cellMain = new PdfPCell();
+            cellMain.setBorder(Rectangle.NO_BORDER);
+            if(logoBitmsp!=null){
+
+                Bitmap imageWithBG = Bitmap.createBitmap(logoBitmsp.getWidth(), logoBitmsp.getHeight(),logoBitmsp.getConfig());
+                imageWithBG.eraseColor(Color.WHITE);
+                Canvas canvas = new Canvas(imageWithBG);
+                canvas.drawBitmap(logoBitmsp, 0f, 0f, null);
+                logoBitmsp.recycle();
+
+                Image formatedImage = null;
+                stream = new ByteArrayOutputStream();
+                imageWithBG.compress(Bitmap.CompressFormat.JPEG,100,stream);
+                try {
+                    formatedImage= Image.getInstance(stream.toByteArray());
+                } catch (BadElementException | IOException e) {
+                    e.printStackTrace();
+                }
+
+                formatedImage.scaleToFit(125,50);
+                formatedImage.setAlignment(Element.ALIGN_RIGHT);
+                cellMain.addElement(formatedImage);
             }
+            main.addCell(cellMain);
 
+            cellMain = new PdfPCell();
+            cellMain.setBorder(Rectangle.NO_BORDER);
+            Paragraph mainCompanyDataParagraph = new Paragraph("Портативні лабораторії листової функціональної\nдіагностики та  аналізу грунту\nhttp://агровектор.укр\nтел.: +38(044) 331 21 50\ne-mail: agrooptimization@gmail.com\n",bfRoman);
+            mainCompanyDataParagraph.setLeading(0, 1);
+            cellMain.addElement(mainCompanyDataParagraph);
+            main.addCell(cellMain);
 
-            logo.scaleToFit(125,50);
-
-            document.add(logo);
-
-            if(companyData.length()==0){
-                companyData="Портативні лабораторії листової функціональної\nдіагностики та  аналізу грунту\nhttp://агровектор.укр\nтел.: +38(044) 331 21 50\ne-mail: agrooptimization@gmail.com\n";
+            cellMain = new PdfPCell();
+            cellMain.setBorder(Rectangle.NO_BORDER);
+            if(companyData!=null){
+                Paragraph companyDataParagraph = new Paragraph(companyData,bfRoman);
+                companyDataParagraph.setLeading(0, 1);
+                companyDataParagraph.setAlignment(Element.ALIGN_RIGHT);
+                cellMain.addElement(companyDataParagraph);
             }
-            Paragraph companyDataParagraph = new Paragraph(companyData,bfRoman);
-            companyDataParagraph.setLeading(0, 1);
-            document.add(companyDataParagraph);
+            main.addCell(cellMain);
+
+            document.add(main);
+
+
+
+
             document.add(new Paragraph("\n",bfRoman));
             if(data == null){
                 data = new String[21];
@@ -439,6 +404,11 @@ public class TabPdfFragment extends Fragment implements View.OnClickListener {
                     }
                 })
                 .load();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        fragment.onActivityResult(requestCode, resultCode, data);
     }
 
 }
