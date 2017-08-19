@@ -14,10 +14,11 @@
 
     <Button
         android:id="@+id/button_close_graph"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_margin="3dp"
         android:background="@drawable/ic_close_black_24px"
-        android:layout_centerVertical="true"
+        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true" />
 
 

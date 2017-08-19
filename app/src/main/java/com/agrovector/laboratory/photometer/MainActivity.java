@@ -1,5 +1,6 @@
 package com.agrovector.laboratory.photometer;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -9,8 +10,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -18,6 +21,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -489,45 +493,49 @@ public class MainActivity extends AppCompatActivity {
                 dialogInfo.show();
                 return true;
             case R.id.item_save_file:
-                AlertDialog dialog;
-                CharSequence[] items = {"Информация о поле", "Примечание", "Pdf документ", "График(и)"};
-                final ArrayList<Integer> seletedItems = new ArrayList<>();
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Выберите какие файлы сохранить");
-                builder.setMultiChoiceItems(items, null,
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int indexSelected,
-                                                boolean isChecked) {
-                                if (isChecked) {
-                                    seletedItems.add(indexSelected);
-                                } else if (seletedItems.contains(indexSelected)) {
-                                    seletedItems.remove(Integer.valueOf(indexSelected));
+                if(isStoragePermissionGranted()){
+                    AlertDialog dialog;
+                    CharSequence[] items = {"Информация о поле", "Примечание", "Pdf документ", "График(и)"};
+                    final ArrayList<Integer> seletedItems = new ArrayList<>();
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Выберите какие файлы сохранить");
+                    builder.setMultiChoiceItems(items, null,
+                            new DialogInterface.OnMultiChoiceClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int indexSelected,
+                                                    boolean isChecked) {
+                                    if (isChecked) {
+                                        seletedItems.add(indexSelected);
+                                    } else if (seletedItems.contains(indexSelected)) {
+                                        seletedItems.remove(Integer.valueOf(indexSelected));
+                                    }
                                 }
-                            }
-                        })
-                        .setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
-                            @SuppressLint("SimpleDateFormat")
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                if (seletedItems.isEmpty())
-                                    Toast.makeText(MainActivity.this, "Вы не выбрали файлы для сохранения", Toast.LENGTH_SHORT).show();
-                                if (seletedItems.contains(0)) createNewFile(0, null);
-                                if (seletedItems.contains(1)) createNewFile(1, null);
-                                if (seletedItems.contains(2)) createNewFile(2, null);
-                                if (seletedItems.contains(3)) createGraphSaveDialog();
-                                seletedItems.clear();
-                            }
-                        })
-                        .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                seletedItems.clear();
-                            }
-                        });
+                            })
+                            .setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+                                @SuppressLint("SimpleDateFormat")
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    if (seletedItems.isEmpty())
+                                        Toast.makeText(MainActivity.this, "Вы не выбрали файлы для сохранения", Toast.LENGTH_SHORT).show();
+                                    if (seletedItems.contains(0)) createNewFile(0, null);
+                                    if (seletedItems.contains(1)) createNewFile(1, null);
+                                    if (seletedItems.contains(2)) createNewFile(2, null);
+                                    if (seletedItems.contains(3)) createGraphSaveDialog();
+                                    seletedItems.clear();
+                                }
+                            })
+                            .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    seletedItems.clear();
+                                }
+                            });
 
-                dialog = builder.create();
-                dialog.show();
+                    dialog = builder.create();
+                    dialog.show();
+                } else {
+                    Toast.makeText(MainActivity.this,"Разрешение не быдо предоставлено",Toast.LENGTH_SHORT);
+                }
                 return true;
             case R.id.item_download_file:
 
@@ -540,6 +548,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public  boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return true;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else return true;
     }
 
 
