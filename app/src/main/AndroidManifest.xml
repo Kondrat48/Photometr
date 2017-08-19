@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.artem.photometr" >
+    package="com.agrovector.laboratory.photometer" >
 
     <uses-feature
         android:name="android.hardware.usb.host"
@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".SplashScreen"
+            android:name="com.agrovector.laboratory.photometer.SplashScreen"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Light.NoTitleBar" >
             <intent-filter>
@@ -28,7 +28,7 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.agrovector.laboratory.photometer.MainActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTask">
@@ -40,7 +40,7 @@
         </activity>
 
         <service
-            android:name=".UsbService"
+            android:name="com.agrovector.laboratory.photometer.UsbService"
             android:enabled="true" />
     </application>
 

@@ -1,11 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
+    lintOptions {
+        abortOnError false
+        checkReleaseBuilds false
+    }
     dataBinding {enabled true}
     compileSdkVersion 26
     buildToolsVersion "26.0.0"
     defaultConfig {
-        applicationId "com.example.artem.photometr"
+        applicationId "com.agrovector.laboratory.photometer"
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 1

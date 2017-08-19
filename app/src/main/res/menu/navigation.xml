@@ -13,7 +13,7 @@
         android:id="@+id/navigation_document_settings"
         android:enabled="true"
         android:icon="@drawable/ic_document_settings_black_24dp"
-        android:title="@string/title_document_settings"
+        android:title="@string/title_document_info"
         app:showAsAction="ifRoom" />
 
     <item
