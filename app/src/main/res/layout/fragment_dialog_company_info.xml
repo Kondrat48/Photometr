@@ -21,7 +21,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:text="Логотип  компании"
+                android:text="@string/companu_logo"
                 android:textColor="@color/colorPrimary"
                 android:textSize="@dimen/text_medium_size" />
 
@@ -48,7 +48,7 @@
                     android:background="@color/transparent"
                     android:clickable="true"
                     android:gravity="center"
-                    android:text="Выбрать"
+                    android:text="@string/select"
                     android:textColor="@color/colorAccent" />
 
                 <Button
@@ -61,7 +61,7 @@
                     android:background="@color/transparent"
                     android:clickable="true"
                     android:gravity="center"
-                    android:text="Очистить"
+                    android:text="@string/clean"
                     android:textColor="@color/colorAccent" />
             </RelativeLayout>
 
@@ -71,7 +71,7 @@
                 android:layout_marginTop="20dp"
                 android:isScrollContainer="false"
                 android:padding="10dp"
-                android:text="Информация о компании"
+                android:text="@string/company_info"
                 android:textColor="@color/colorPrimary"
                 android:textSize="@dimen/text_medium_size" />
 
@@ -94,24 +94,15 @@
                 android:clickable="true"
                 android:clipChildren="false">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@+id/checkbox_save_as_default"
-                    android:layout_toStartOf="@+id/checkbox_save_as_default"
-                    android:text="Устоновить по умолчанию"
-                    android:textSize="@dimen/text_big_size" />
-
                 <CheckBox
                     android:id="@+id/checkbox_save_as_default"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true" />
+                    android:layout_alignParentTop="true"
+                    android:text="@string/set_as_default"
+                    android:textSize="@dimen/text_big_size"/>
             </RelativeLayout>
         </LinearLayout>
     </ScrollView>

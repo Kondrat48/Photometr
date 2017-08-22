@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -50,6 +51,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Set;
 import java.util.Stack;
 
@@ -64,19 +66,19 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case UsbService.ACTION_USB_PERMISSION_GRANTED: // USB PERMISSION GRANTED
-                    Toast.makeText(context, "Фотометр подключён", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.USB_PERMISSION_GRANTED, Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_USB_PERMISSION_NOT_GRANTED: // USB PERMISSION NOT GRANTED
-                    Toast.makeText(context, "Разрешение USB не предостявлено", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.USB_PERMISSION_NOT_GRANTED, Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_NO_USB: // NO USB CONNECTED
 //                    Toast.makeText(context, "Нет подключённых USB устройств", Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_USB_DISCONNECTED: // USB DISCONNECTED
-                    Toast.makeText(context, "Фотометр отключен", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.USB_DISCONNECTED, Toast.LENGTH_SHORT).show();
                     break;
                 case UsbService.ACTION_USB_NOT_SUPPORTED: // USB NOT SUPPORTED
-                    Toast.makeText(context, "USB устройство не поддерживается", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.USB_NOT_SUPPORTED, Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<Rzlt> rzlts = new ArrayList<>();
     public int lastSelectedItemPos = 0;
     private boolean pdfLoafed = false;
+    private Locale mLocale;
 
 
     @Override
@@ -122,22 +125,24 @@ public class MainActivity extends AppCompatActivity {
             vpPager.setCurrentItem(pagesHistory.lastElement());
         } else {
             new AlertDialog.Builder(this)
-                    .setTitle("Вы уверены что хотите выйти?")
-                    .setMessage("Все несохраненные данные будут утеряны")
-                    .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                    .setTitle(R.string.Are_you_sure_you_want_to_quit)
+                    .setMessage(R.string.All_unsaved_data_will_be_lost)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             finish();
                         }
 
                     })
-                    .setNegativeButton("Нет", null)
+                    .setNegativeButton(R.string.no, null)
                     .show();
         }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        loadLocale();
+        getSupportActionBar().setTitle(R.string.app_name);
         mHandler = new MyHandler(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -221,10 +226,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
-
-
     }
 
     @Override
@@ -271,14 +276,14 @@ public class MainActivity extends AppCompatActivity {
         String ending = null;
         switch (type) {
             case 0:
-                title = "Введите название нового FLD файла";
+                title = getString(R.string.enter_FLD_file_name);
                 ending = ".fld";
-                edt.setText("Поле №" + tabDocumentSettingsFragment.getData()[2] + ending);
+                edt.setText(getString(R.string.field_number) + tabDocumentSettingsFragment.getData()[2] + ending);
                 break;
             case 1:
-                title = "Введите название нового CMT файла";
+                title = getString(R.string.enter_CMT_file_name);
                 ending = ".cmt";
-                edt.setText("Поле №" + tabDocumentSettingsFragment.getData()[2] + ending);
+                edt.setText(getString(R.string.field_number) + tabDocumentSettingsFragment.getData()[2] + ending);
                 break;
             case 2:
                 if(!pdfLoafed){
@@ -289,18 +294,18 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (doChangesInPdf())
                     tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements, tabWatchFragment.getData(), tabWatchFragment.getGraph());
-                title = "Введите название нового PDF файла";
+                title = getString(R.string.enter_PDF_file_name);
                 ending = ".pdf";
                 break;
             case 3:
-                title = "Введите название нового PHT файла";
+                title = getString(R.string.enter_PHT_file_name);
                 ending = ".pht";
                 edt.setText(new DecimalFormat("0000").format(rzlts.get(pos).number)+"_"+new SimpleDateFormat("dd-MM-yyyy_HH;mm;ss").format(new Date(rzlts.get(pos).date))+ending);
                 break;
         }
         dialogBuilder.setTitle(title);
         final String finalEnding = ending;
-        dialogBuilder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+        dialogBuilder.setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 if (edt.getText().toString().length() > 0) {
                     isCreatable[0] = true;
@@ -325,12 +330,12 @@ public class MainActivity extends AppCompatActivity {
                             saveRzlts(str,pos);
                             break;
                     }
-                    Toast.makeText(MainActivity.this, "Файл сохранён в " + Environment.getExternalStorageDirectory() + "/Photometer/" + str, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.file_saved_in) + Environment.getExternalStorageDirectory() + "/Photometer/" + str, Toast.LENGTH_SHORT).show();
                 } else
-                    Toast.makeText(MainActivity.this, "Вы не выбрали имя файла", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.You_did_not_select_file_name, Toast.LENGTH_SHORT).show();
             }
         });
-        dialogBuilder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
             }
         });
@@ -369,11 +374,11 @@ public class MainActivity extends AppCompatActivity {
             case 20:
                 if (resultCode == Activity.RESULT_OK)
                     uri = null;
-                else Toast.makeText(MainActivity.this, "Файл не выбран", Toast.LENGTH_SHORT).show();
+                else Toast.makeText(MainActivity.this, R.string.no_file_selected, Toast.LENGTH_SHORT).show();
                 if (data != null) {
                     if (data.getData().getPath().endsWith(".pht")) {
                         uri = data.getData();
-                        Toast.makeText(MainActivity.this, "Выбран файл: " + uri.getPath(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, getString(R.string.file_selected) + uri.getPath(), Toast.LENGTH_SHORT).show();
                         try {
                             st = readTextFromUri(uri);
                         } catch (IOException e) {
@@ -426,7 +431,8 @@ public class MainActivity extends AppCompatActivity {
                         changesInPdf = true;
                         tabDocumentSettingsFragment.updateCmt(uri);
                     } else
-                        Toast.makeText(MainActivity.this, "Формат файла не поддерживается", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, R.string.File_format_not_supported, Toast.LENGTH_SHORT).show();
+                    if(vpPosition==2)tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements, tabWatchFragment.getData(), tabWatchFragment.getGraph());
 
                 }
                 break;
@@ -475,15 +481,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.item_open_file:
                 AlertDialog dialogInfo;
                 final AlertDialog.Builder builderInfo = new AlertDialog.Builder(this);
-                builderInfo.setTitle("Виберите файл")
-                        .setMessage("Файлы с расширением .fld содержат информацию про поле, .cmt - примичание к ней, .pht - информация, считаная с фотометра.")
+                builderInfo.setTitle(R.string.select_file)
+                        .setMessage(R.string.select_file_message)
                         .setOnCancelListener(new DialogInterface.OnCancelListener() {
                             @Override
                             public void onCancel(DialogInterface dialogInterface) {
-                                Toast.makeText(MainActivity.this, "Файл не выбран", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, R.string.no_file_selected, Toast.LENGTH_SHORT).show();
                             }
                         })
-                        .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 performFileSearch();
@@ -495,10 +501,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.item_save_file:
                 if(isStoragePermissionGranted()){
                     AlertDialog dialog;
-                    CharSequence[] items = {"Информация о поле", "Примечание", "Pdf документ", "График(и)"};
+                    CharSequence[] items = {getString(R.string.info_about_field), getString(R.string.note), getString(R.string.pdf_doc), getString(R.string.graphs)};
                     final ArrayList<Integer> seletedItems = new ArrayList<>();
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("Выберите какие файлы сохранить");
+                    builder.setTitle(R.string.Choose_which_files_to_save);
                     builder.setMultiChoiceItems(items, null,
                             new DialogInterface.OnMultiChoiceClickListener() {
                                 @Override
@@ -511,12 +517,12 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                             })
-                            .setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                                 @SuppressLint("SimpleDateFormat")
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
                                     if (seletedItems.isEmpty())
-                                        Toast.makeText(MainActivity.this, "Вы не выбрали файлы для сохранения", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(MainActivity.this, R.string.You_did_not_select_any_files_to_save, Toast.LENGTH_SHORT).show();
                                     if (seletedItems.contains(0)) createNewFile(0, null);
                                     if (seletedItems.contains(1)) createNewFile(1, null);
                                     if (seletedItems.contains(2)) createNewFile(2, null);
@@ -524,7 +530,7 @@ public class MainActivity extends AppCompatActivity {
                                     seletedItems.clear();
                                 }
                             })
-                            .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int id) {
                                     seletedItems.clear();
@@ -534,20 +540,129 @@ public class MainActivity extends AppCompatActivity {
                     dialog = builder.create();
                     dialog.show();
                 } else {
-                    Toast.makeText(MainActivity.this,"Разрешение не быдо предоставлено",Toast.LENGTH_SHORT);
+                    Toast.makeText(MainActivity.this, R.string.Permission_was_not_granted,Toast.LENGTH_SHORT);
                 }
                 return true;
             case R.id.item_download_file:
 
                 if (usbService.serialPortConnected)usbService.readContent();
-                else Toast.makeText(MainActivity.this,"Фотометр не подключен",Toast.LENGTH_SHORT).show();
+                else Toast.makeText(MainActivity.this, R.string.photometr_not_conected,Toast.LENGTH_SHORT).show();
 
+                return true;
+            case R.id.item_language:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                CharSequence[] items = new CharSequence[]{"Русский","Українська"," English"};
+                final int selectedItem;
 
+                switch (Locale.getDefault().getDisplayLanguage()){
+                    case "українська":
+                        selectedItem = 1;
+                        break;
+                    case "English":
+                        selectedItem = 2;
+                        break;
+                    default:
+                        selectedItem = 0;
+                        break;
+                }
+                final int[] newSelectedItem = {selectedItem};
+                builder.setTitle(R.string.select_language)
+                        .setSingleChoiceItems(items, selectedItem , new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                newSelectedItem[0] = i;
+                            }
+                        })
+                        .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                String lang = "ru";
+                                switch (newSelectedItem[0]) {
+                                    case 2:
+                                        lang = "en";
+                                        break;
+                                    case 0:
+                                        lang = "ru";
+                                        break;
+                                    case 1:
+                                        lang = "uk";
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                if(newSelectedItem[0]!=selectedItem)changeLang(lang);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
 
+                            }
+                        })
+                        .create().show();
+                return true;
+
+//            case R.id.item_help:
+//
+//                return true;
+
+            case R.id.item_about:
+                Intent intent = new Intent(this, AboutProgram.class);
+                startActivity(intent);
                 return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void changeLang(String lang)
+    {
+        saveLocale(lang);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int k) {
+                Intent i = getBaseContext().getPackageManager().
+                        getLaunchIntentForPackage(getBaseContext().getPackageName());
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+                finish();
+            }
+        })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .setMessage(R.string.restart_now)
+                .create().show();
+    }
+
+    public void saveLocale(String lang)
+    {
+        String langPref = "Language";
+        SharedPreferences prefs = getSharedPreferences("CommonPrefs", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(langPref, lang);
+        editor.commit();
+    }
+
+    public void loadLocale()
+    {
+        String langPref = "Language";
+        SharedPreferences prefs = getSharedPreferences("CommonPrefs", Activity.MODE_PRIVATE);
+        String language = prefs.getString(langPref, "");
+        if (language.equalsIgnoreCase(""))
+            return;
+        mLocale = new Locale(language);
+        Locale.setDefault(mLocale);
+        android.content.res.Configuration config = new android.content.res.Configuration();
+        //noinspection deprecation
+        config.locale = mLocale;
+        //noinspection deprecation
+        getBaseContext().getResources().updateConfiguration(config, getBaseContext().getResources().getDisplayMetrics());
     }
 
     public  boolean isStoragePermissionGranted() {
@@ -575,7 +690,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(list.length>0){
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-            alertBuilder.setTitle("Выберите какие измерения сохронять:")
+            alertBuilder.setTitle(R.string.Choose_which_measurements_to_save)
                     .setMultiChoiceItems(list, null, new DialogInterface.OnMultiChoiceClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i, boolean b) {
@@ -586,18 +701,18 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     })
-                    .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             if(!selectedList.isEmpty()){
                                 for(int n = 0; n < selectedList.size(); n++){
                                     createNewFile(3,selectedList.get(n));
                                 }
-                            }else Toast.makeText(MainActivity.this, "Вы не выбрали измерения для сохранения", Toast.LENGTH_SHORT).show();
+                            }else Toast.makeText(MainActivity.this, R.string.You_did_not_select_a_dimension_to_save, Toast.LENGTH_SHORT).show();
                             selectedList.clear();
                         }
                     })
-                    .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -605,7 +720,7 @@ public class MainActivity extends AppCompatActivity {
                     });
             AlertDialog dialog1 = alertBuilder.create();
             dialog1.show();
-        } else Toast.makeText(MainActivity.this,"Нет несохраненных измерений",Toast.LENGTH_SHORT).show();
+        } else Toast.makeText(MainActivity.this, R.string.No_unsaved_measurements,Toast.LENGTH_SHORT).show();
 
     }
 
@@ -669,7 +784,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         } else {
-            dates.add("Пусто");
+            dates.add(getString(R.string.empty));
             values = null;
             tabWatchFragment.updateSpinner(dates);
             tabWatchFragment.update(values,null);
@@ -711,7 +826,7 @@ public class MainActivity extends AppCompatActivity {
                             items[i] = String.valueOf(slots.get(i));
                         final ArrayList<Integer> selectedItems = new ArrayList<>();
                         final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity.get());
-                        builder.setTitle("Выберите какие результаты измерений загрузить")
+                        builder.setTitle(R.string.Choose_which_measurement_results_to_download)
                                 .setMultiChoiceItems(items, null, new DialogInterface.OnMultiChoiceClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int indexSelected, boolean isChecked) {
@@ -720,7 +835,7 @@ public class MainActivity extends AppCompatActivity {
                                             selectedItems.remove(Integer.valueOf(indexSelected));
                                     }
                                 })
-                                .setPositiveButton("Загрузить", new DialogInterface.OnClickListener() {
+                                .setPositiveButton(R.string.load, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         if(!selectedItems.isEmpty()){
@@ -739,11 +854,11 @@ public class MainActivity extends AppCompatActivity {
                                                 }
                                             }
                                         }else {
-                                            Toast.makeText(mActivity.get(),"Файлы для загрузки не выбраны",Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(mActivity.get(), R.string.No_download_files_selected,Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 })
-                                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int id) {
                                         selectedItems.clear();
@@ -753,8 +868,8 @@ public class MainActivity extends AppCompatActivity {
                         dialog.show();
                     } else {
                         final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity.get());
-                        builder.setMessage("На устройстве нет измерений")
-                                .setPositiveButton("Ок", new DialogInterface.OnClickListener() {
+                        builder.setMessage(R.string.There_are_no_measurements_on_this_device)
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
 

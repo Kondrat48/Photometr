@@ -187,7 +187,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
         super.onViewCreated(view, savedInstanceState);
 
         ArrayList<String> dates = new ArrayList<>();
-        dates.add("Пусто");
+        dates.add(getString(R.string.empty));
         updateSpinner(dates);
     }
 
@@ -353,22 +353,22 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
     public void rotate(int orientation){
 
-        int d = (int) getResources().getDisplayMetrics().density;
+        float d = getResources().getDisplayMetrics().density;
         RelativeLayout.LayoutParams paramsFrame = (RelativeLayout.LayoutParams) frameLayout.getLayoutParams();
         RelativeLayout.LayoutParams paramsTable = (RelativeLayout.LayoutParams) table.getLayoutParams();
         RelativeLayout.LayoutParams paramsButton = (RelativeLayout.LayoutParams) buttonViewSwitcherLayout.getLayoutParams();
         RelativeLayout.LayoutParams paramsSpinner = (RelativeLayout.LayoutParams) spinner.getLayoutParams();
 
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            paramsFrame.bottomMargin = 20*d;
-            paramsFrame.rightMargin = 92*d;
+            paramsFrame.bottomMargin = (int) (20*d);
+            paramsFrame.rightMargin = (int) (92*d);
 
-            paramsTable.bottomMargin = 20*d;
-            paramsTable.rightMargin = 92*d;
+            paramsTable.bottomMargin = (int) (20*d);
+            paramsTable.rightMargin = (int) (92*d);
 
-            paramsSpinner.rightMargin = 92*d;
+            paramsSpinner.rightMargin = (int) (92*d);
 
-            paramsButton.rightMargin = 15*d;
+            paramsButton.rightMargin = (int) (15*d);
             paramsButton.bottomMargin = 0;
             paramsButton.removeRule(RelativeLayout.CENTER_HORIZONTAL);
             paramsButton.addRule(RelativeLayout.CENTER_VERTICAL);
@@ -377,16 +377,16 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
             paramsButton.addRule(RelativeLayout.ALIGN_PARENT_END);
             animateChart();
         } else if (orientation == Configuration.ORIENTATION_PORTRAIT){
-            paramsFrame.bottomMargin = 92*d;
-            paramsFrame.rightMargin = 20*d;
+            paramsFrame.bottomMargin = (int) (92*d);
+            paramsFrame.rightMargin = (int) (20*d);
 
-            paramsTable.bottomMargin = 92*d;
-            paramsTable.rightMargin = 20*d;
+            paramsTable.bottomMargin = (int) (92*d);
+            paramsTable.rightMargin = (int) (20*d);
 
-            paramsSpinner.rightMargin = 20*d;
+            paramsSpinner.rightMargin = (int) (20*d);
 
             paramsButton.rightMargin = 0;
-            paramsButton.bottomMargin = 15*d;
+            paramsButton.bottomMargin = (int) (15*d);
             paramsButton.addRule(RelativeLayout.CENTER_HORIZONTAL);
             paramsButton.removeRule(RelativeLayout.CENTER_VERTICAL);
             paramsButton.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);

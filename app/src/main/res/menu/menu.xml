@@ -18,4 +18,16 @@
         android:title="@string/title_open_file"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/item_language"
+        android:title="@string/language"/>
+
+    <!--<item-->
+        <!--android:id="@+id/item_help"-->
+        <!--android:title="@string/help"/>-->
+
+    <item
+        android:id="@+id/item_about"
+        android:title="@string/about_program"/>
+
 </menu>

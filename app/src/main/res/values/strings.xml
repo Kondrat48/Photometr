@@ -1,7 +1,7 @@
 <resources>
-    <string name="error_configuration">Please configure your serial port first.</string>
-    <string name="error_security">You do not have read/write permission to the serial port.</string>
-    <string name="error_unknown">The serial port can not be opened for an unknown reason.</string>
+    <string name="error_configuration" translatable="false">Please configure your serial port first.</string>
+    <string name="error_security" translatable="false">You do not have read/write permission to the serial port.</string>
+    <string name="error_unknown" translatable="false">The serial port can not be opened for an unknown reason.</string>
     <string name="app_name">Фотометр</string>
     <string name="title_watch">Просмотр</string>
     <string name="title_document_info">Информация</string>
@@ -30,26 +30,26 @@
     <string name="text_before_sowing_fertilization">Предпосевное внесение удобрений</string>
     <string name="text_main_application_of_fertilizers">Основное внесение удобрений</string>
     <string name="text_soil_analysis">Анализ грунта(мг/кг)</string>
-    <string name="cell_text_ph">Ph</string>
+    <string name="cell_text_ph" translatable="false">Ph</string>
     <string name="cell_text_gumus">Гумус</string>
-    <string name="cell_text_n">N</string>
-    <string name="cell_text_p">P</string>
-    <string name="cell_text_k">K</string>
-    <string name="cell_text_s">S</string>
-    <string name="cell_text_ca">Ca</string>
-    <string name="cell_text_mg">Mg</string>
-    <string name="cell_text_b">B</string>
-    <string name="cell_text_cu">Cu</string>
-    <string name="cell_text_zn">Zn</string>
-    <string name="cell_text_mn">Mn</string>
-    <string name="cell_text_fe">Fe</string>
-    <string name="cell_text_mo">Mo</string>
-    <string name="cell_text_j">J</string>
+    <string name="cell_text_n" translatable="false">N</string>
+    <string name="cell_text_p" translatable="false">P</string>
+    <string name="cell_text_k" translatable="false">K</string>
+    <string name="cell_text_s" translatable="false">S</string>
+    <string name="cell_text_ca" translatable="false">Ca</string>
+    <string name="cell_text_mg" translatable="false">Mg</string>
+    <string name="cell_text_b" translatable="false">B</string>
+    <string name="cell_text_cu" translatable="false">Cu</string>
+    <string name="cell_text_zn" translatable="false">Zn</string>
+    <string name="cell_text_mn" translatable="false">Mn</string>
+    <string name="cell_text_fe" translatable="false">Fe</string>
+    <string name="cell_text_mo" translatable="false">Mo</string>
+    <string name="cell_text_j" translatable="false">J</string>
     <string name="cell_text_top_dressin1">Подкормка 1</string>
     <string name="cell_text_top_dressin2">Подкормка 2</string>
     <string name="cell_text_top_dressin3">Подкормка 3</string>
     <string name="cell_text_top_dressin4">Подкормка 4</string>
-    <string name="gr_on_ha">гр/га</string>
+    <string name="gr_on_ha">г/га</string>
     <string name="cell_text_control_1">K1 - контроль</string>
     <string name="cell_text_nitrogen">N - азот</string>
     <string name="cell_text_phosphor">P - фосфор</string>
@@ -67,14 +67,90 @@
     <string name="k4cell_text_control_4">K4 - контроль</string>
     <string name="cell_text_mon">Mo - молибден</string>
     <string name="cell_text_cobalt">Co - кобальт</string>
-    <string name="cell_text_jod">J - йод</string>
+    <string name="cell_text_jod">I - йод</string>
     <string name="cell_text_control_5">K5 - контроль</string>
     <string name="cell_text_element">Элемент</string>
     <string name="cell_text_chenges">Изм.</string>
     <string name="cell_text_db">ДВ</string>
     <string name="clean_button">Отмена</string>
     <string name="save_button">Сохронить</string>
-    <string name="cell_text_co">Co</string>
-    <string name="default_company_info">Товариство з обмеженою відповідальністю \"АПК-ГРУП\"\nУкраїна, 07400, м.Бровари, вул.Грушевського, 7, к.338\nтел. (044) 331 21 50\nmlab@apk-group.com.ua\nwww.agrovector.com.ua\nКонсультаційна лінія: 0 800 505 110</string>
+    <string name="cell_text_co" translatable="false">Co</string>
+    <string name="default_company_info" translatable="false">Товариство з обмеженою відповідальністю \"АПК-ГРУП\"\nУкраїна, 07400, м.Бровари, вул.Грушевського, 7, к.338\nтел. (044) 331 21 50\nmlab@apk-group.com.ua\nwww.agrovector.com.ua\nКонсультаційна лінія: 0 800 505 110</string>
     <string name="save_file">Сохранить файл</string>
+    <string name="empty">Пусто</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="file_not_saved_Save">. Файл не сохранен. Сохранить?</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="something_went_wrong">Чтото пошло не так</string>
+    <string name="You_did_not_select_an_image">Вы не выбрали изображение</string>
+    <string name="USB_PERMISSION_GRANTED">Фотометр подключён</string>
+    <string name="USB_PERMISSION_NOT_GRANTED">Разрешение USB не предостявлено</string>
+    <string name="USB_DISCONNECTED">Фотометр отключен</string>
+    <string name="USB_NOT_SUPPORTED">USB устройство не поддерживается</string>
+    <string name="Are_you_sure_you_want_to_quit">Вы уверены что хотите выйти?</string>
+    <string name="All_unsaved_data_will_be_lost">Все несохраненные данные будут утеряны</string>
+    <string name="enter_FLD_file_name">Введите название нового FLD файла</string>
+    <string name="field_number">Поле №</string>
+    <string name="enter_CMT_file_name">Введите название нового CMT файла</string>
+    <string name="enter_PDF_file_name">Введите название нового PDF файла</string>
+    <string name="enter_PHT_file_name">Введите название нового PHT файла</string>
+    <string name="file_saved_in">Файл сохранён в</string>
+    <string name="You_did_not_select_file_name">Вы не выбрали имя файла</string>
+    <string name="no_file_selected">Файл не выбран</string>
+    <string name="file_selected">Выбран файл:</string>
+    <string name="File_format_not_supported">Формат файла не поддерживается</string>
+    <string name="select_file">Виберите файл</string>
+    <string name="select_file_message">Файлы с расширением .fld содержат информацию про поле, .cmt - примичание к ней, .pht - информация, считаная с фотометра.</string>
+    <string name="ok">Ок</string>
+    <string name="info_about_field">Информация о поле</string>
+    <string name="note">Примечание</string>
+    <string name="pdf_doc">Pdf документ</string>
+    <string name="graphs">График(и)</string>
+    <string name="Choose_which_files_to_save">Выберите какие файлы сохранить</string>
+    <string name="You_did_not_select_any_files_to_save">Вы не выбрали файлы для сохранения</string>
+    <string name="Permission_was_not_granted">Разрешение не было предоставлено</string>
+    <string name="photometr_not_conected">Фотометр не подключен</string>
+    <string name="select_language">Выберите язык</string>
+    <string name="Choose_which_measurements_to_save">Выберите какие измерения сохранять</string>
+    <string name="You_did_not_select_a_dimension_to_save">Вы не выбрали измерения для сохранения</string>
+    <string name="No_unsaved_measurements">Нет несохраненных измерений</string>
+    <string name="Choose_which_measurement_results_to_download">Выберите какие результаты измерений загрузить</string>
+    <string name="load">Загрузить</string>
+    <string name="No_download_files_selected">Файлы для загрузки не выбраны</string>
+    <string name="language">Язык</string>
+    <string name="help">Справка</string>
+    <string name="about_program">О программе</string>
+    <string name="There_are_no_measurements_on_this_device">На устройстве нет измерений</string>
+    <string name="agrovector_company_data">Портативні лабораторії листової функціональної \nдіагностики та аналізу грунту \nhttp://агровектор.укр \nтел.: +38(044) 331 21 50 \ne-mail: agrooptimization@gmail.com</string>
+    <string name="pdf_strings1">Название хозяйства: \nНомер поля: \nПлощадь поля:</string>
+    <string name="pdf_strings2">Культура: \nФаза розвития: \nПредшественник:</string>
+    <string name="pdfstrings3">\nАнализ грунта</string>
+    <string name="pdf_mg_on_kg">,\nмг/кг</string>
+    <string name="pdf_string6">Гумус</string>
+    <string name="pdf_string7">Основное внесение удобрений  \n\nПредпосевное внесение удобрений \nПрипосевное внесение удобрений</string>
+    <string name="pdf_string8">Известь</string>
+    <string name="pdf_string9">Гипс</string>
+    <string name="pdf_strindg10">Навоз</string>
+    <string name="pdf_kg_on_ha"> кг/га\n</string>
+    <string name="pdf_string11">Подкормка</string>
+    <string name="pdf_string12">Подкормка</string>
+    <string name="pdf_string13">Примечания:</string>
+    <string name="pdf_string14">Результати измерений от</string>
+    <string name="pdf_string15">Изм.</string>
+    <string name="pdf_string_16">ДВ</string>
+    <string name="pdf_string_17">Анализ фотометра</string>
+    <string name="companu_logo">Логотип компании</string>
+    <string name="select">Выбрать</string>
+    <string name="clean">Очистить</string>
+    <string name="company_info">Информация о компании</string>
+    <string name="set_as_default">Устоновить по умолчанию</string>
+    <string name="restart_now">Чтобы применить изменения, необходимо перезапустить приложение.\nПерезапустить сейчас?</string>
+    <string name="Phase_development">Фаза развития</string>
+    <string name="copyright">Copyright © 2017"</string>
+    <string name="copyright2">ТОВ \"АПК - Груп\"</string>
+    <string name="site">Наш сайт:</string>
+    <string name="site2" translatable="false"><u>agrovector.com.ua</u></string>
+    <string name="version_text">Версия</string>
 </resources>

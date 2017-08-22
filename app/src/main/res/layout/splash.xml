@@ -4,13 +4,10 @@
     android:layout_height="match_parent">
 
     <ImageView
+        android:layout_centerInParent="true"
         android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"
-        android:layout_marginLeft="110dp"
-        android:layout_marginRight="110dp"
-        android:layout_marginTop="60dp"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
         android:src="@drawable/splash_image" />
 
 </RelativeLayout>

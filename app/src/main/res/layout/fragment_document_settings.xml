@@ -100,7 +100,7 @@
                             android:id="@+id/input_stage_of_crop"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Фаза развития"
+                            android:hint="@string/Phase_development"
                             android:maxLines="1"
                             android:textSize="@dimen/text_big_size" />
                     </android.support.design.widget.TextInputLayout>

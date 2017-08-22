@@ -60,7 +60,7 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
         Button button = view.findViewById(R.id.button_close_graph);
 
         measuringInfo.setText(items.get(position));
-        if(!items.get(position).equals("Пусто")){
+        if(!items.get(position).equals(mContext.getString(R.string.empty))){
             button.setOnClickListener(new View.OnClickListener() {
                 @SuppressLint("SimpleDateFormat")
                 @Override
@@ -69,15 +69,15 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
                         mActivity.get().closeItem(position);
                     else {
                         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity.get());
-                        builder.setTitle("\""+new DecimalFormat("0000").format(mActivity.get().rzlts.get(position).number)+" - "+new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(mActivity.get().rzlts.get(position).date))+"\". Файл не сохранен. Сохранить?")
-                                .setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                        builder.setTitle("\""+new DecimalFormat("0000").format(mActivity.get().rzlts.get(position).number)+" - "+new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(mActivity.get().rzlts.get(position).date))+mContext.getString(R.string.file_not_saved_Save))
+                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         mActivity.get().createNewFile(3,position);
                                         mActivity.get().closeItem(position);
                                     }
                                 })
-                                .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         mActivity.get().closeItem(position);

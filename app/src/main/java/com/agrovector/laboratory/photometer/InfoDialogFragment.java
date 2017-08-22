@@ -66,7 +66,7 @@ public class InfoDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = inflater.inflate(R.layout.fragment_dialog_company_info, null);
         builder.setView(view)
-                .setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @SuppressLint("ApplySharedPref")
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -118,7 +118,7 @@ public class InfoDialogFragment extends DialogFragment {
                         mFragmrnt.get().update(mFragmrnt.get().data,mFragmrnt.get().date,mFragmrnt.get().graphData,mFragmrnt.get().graph);
                     }
                 })
-                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
@@ -190,10 +190,10 @@ public class InfoDialogFragment extends DialogFragment {
                 logoImageView.setBackgroundResource(R.color.transparent);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                Toast.makeText(getActivity(), "Чтото пошло не так", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), R.string.something_went_wrong, Toast.LENGTH_LONG).show();
             }
         }else {
-            Toast.makeText(getActivity(), "Вы не выбрали изображение",Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.You_did_not_select_an_image,Toast.LENGTH_LONG).show();
         }
     }
 

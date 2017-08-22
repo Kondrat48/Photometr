@@ -1,6 +1,7 @@
 package com.agrovector.laboratory.photometer;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -211,7 +212,7 @@ public class TabPdfFragment extends Fragment {
 
             cellMain = new PdfPCell();
             cellMain.setBorder(Rectangle.NO_BORDER);
-            Paragraph mainCompanyDataParagraph = new Paragraph("Портативні лабораторії листової функціональної\nдіагностики та  аналізу грунту\nhttp://агровектор.укр\nтел.: +38(044) 331 21 50\ne-mail: agrooptimization@gmail.com\n",bfRoman);
+            Paragraph mainCompanyDataParagraph = new Paragraph(getString(R.string.agrovector_company_data),bfRoman);
             mainCompanyDataParagraph.setLeading(0, 1);
             cellMain.addElement(mainCompanyDataParagraph);
             main.addCell(cellMain);
@@ -236,12 +237,15 @@ public class TabPdfFragment extends Fragment {
                 data = new String[21];
                 for (int i = 0; i<data.length;i++)data[i]=" ";
             }
-            PdfPTable info = new PdfPTable(new float[]{0.565f,1,0.49f,1});
+            PdfPTable info;
+            if(!getActivity().getSharedPreferences("CommonPrefs", Activity.MODE_PRIVATE).getString("Language", "").equals("en")){
+                info = new PdfPTable(new float[]{0.565f,1,0.49f,1});
+            }else info = new PdfPTable(new float[]{0.4f,1,0.55f,1});
             info.setWidthPercentage(100);
             for (int i = 0;i<4;i++){
-                String str1 = "Название хозяйства:\nНомер поля:\nПлощадь поля:";
+                String str1 = getString(R.string.pdf_strings1);
                 String str2 = data[0]+'\n'+data[1]+'\n'+data[2];
-                String str3 = "Культура:\nФаза розвития:\nПредшественник:";
+                String str3 = getString(R.string.pdf_strings2);
                 String str4 = data[3]+'\n'+data[5]+'\n'+data[4];
                 Paragraph paragraph = null;
                 if(i==0)paragraph = new Paragraph(str1,bfRomanBold);
@@ -255,14 +259,14 @@ public class TabPdfFragment extends Fragment {
             }
             document.add(info);
 
-            Paragraph analise = new Paragraph("\nАнализ грунта",bfRomanBold);
+            Paragraph analise = new Paragraph(getString(R.string.pdfstrings3),bfRomanBold);
             analise.setLeading(0,1);
             document.add(analise);
             Paragraph befourTable = new Paragraph(" ",new Font(Font.FontFamily.TIMES_ROMAN,4));
             document.add(befourTable);
             PdfPTable table = new PdfPTable(16);
             table.setWidthPercentage(100);
-            String[] strings = {"PH","Гумус,\nмг/кг","N,\n  мг/кг","P,\nмг/кг","K,\nмг/кг","S,\nмг/кг","Ca,\nмг/кг","Mg,\nмг/кг","B,\nмг/кг","Cu,\nмг/кг","Zn,\nмг/кг","Mn,\nмг/кг","Fe,\nмг/кг","Mo,\nмг/кг","Co,\nмг/кг","J,\nмг/кг"};
+            String[] strings = {"PH",getString(R.string.pdf_string6)+getString(R.string.pdf_mg_on_kg),"N"+getString(R.string.pdf_mg_on_kg),"P"+getString(R.string.pdf_mg_on_kg),"K"+getString(R.string.pdf_mg_on_kg),"S"+getString(R.string.pdf_mg_on_kg),"Ca"+getString(R.string.pdf_mg_on_kg),"Mg"+getString(R.string.pdf_mg_on_kg),"B"+getString(R.string.pdf_mg_on_kg),"Cu"+getString(R.string.pdf_mg_on_kg),"Zn"+getString(R.string.pdf_mg_on_kg),"Mn"+getString(R.string.pdf_mg_on_kg),"Fe"+getString(R.string.pdf_mg_on_kg),"Mo"+getString(R.string.pdf_mg_on_kg),"Co"+getString(R.string.pdf_mg_on_kg),"J"+getString(R.string.pdf_mg_on_kg)};
             Font inCellTextFont = new Font(roman,9);
             for (int i = 0; i<32;i++){
                 Paragraph paragraph;
@@ -279,19 +283,22 @@ public class TabPdfFragment extends Fragment {
                 table.addCell(cell);
             }
             document.add(table);
-            PdfPTable fertilising = new PdfPTable(new float[]{2.73f,0.72f,1,0.52f,1,0.59f,1,0.22f,1});
+            PdfPTable fertilising;
+            if(!getActivity().getSharedPreferences("CommonPrefs", Activity.MODE_PRIVATE).getString("Language", "").equals("en")){
+                fertilising = new PdfPTable(new float[]{2.73f,0.72f,1,0.52f,1,0.59f,1,0.22f,1});
+            }else fertilising = new PdfPTable(new float[]{2.35f,0.5f,1,0.7f,1,0.66f,1,0.22f,1});
             fertilising.setWidthPercentage(100);
             for (int i = 0; i<9;i++){
                 Paragraph paragraph = null;
-                if(i==0)paragraph = new Paragraph("Основное внесение удобрений\n\nПредпосевное внесение удобрений\nПрипосевное внесение удобрений",bfRomanBold);else
-                if(i==1)paragraph = new Paragraph("Известь:\nN:\nN:\nN:",bfRoman);else
-                if(i==2)paragraph = new Paragraph(data[10]+" кг/га\n"+data[6]+" кг/га\n"+data[13]+" кг/га\n"+data[17]+" кг/га\n",bfRoman);else
-                if(i==3)paragraph = new Paragraph("Гипс:\nP2O5:\nP2O5:\nP2O5:",bfRoman);else
-                if(i==4)paragraph = new Paragraph(data[11]+" кг/га\n"+data[7]+" кг/га\n"+data[14]+" кг/га\n"+data[18]+" кг/га\n",bfRoman);else
-                if(i==5)paragraph = new Paragraph("Навоз:\nK2O:\nK2O:\nK2O:",bfRoman);else
-                if(i==6)paragraph = new Paragraph(data[12]+" кг/га\n"+data[8]+" кг/га\n"+data[15]+" кг/га\n"+data[19]+" кг/га\n",bfRoman);else
+                if(i==0)paragraph = new Paragraph(getString(R.string.pdf_string7),bfRomanBold);else
+                if(i==1)paragraph = new Paragraph(getString(R.string.pdf_string8)+":\nN:\nN:\nN:",bfRoman);else
+                if(i==2)paragraph = new Paragraph(data[10]+getString(R.string.pdf_kg_on_ha)+data[6]+getString(R.string.pdf_kg_on_ha)+data[13]+getString(R.string.pdf_kg_on_ha)+data[17]+getString(R.string.pdf_kg_on_ha),bfRoman);else
+                if(i==3)paragraph = new Paragraph(getString(R.string.pdf_string9)+":\nP2O5:\nP2O5:\nP2O5:",bfRoman);else
+                if(i==4)paragraph = new Paragraph(data[11]+getString(R.string.pdf_kg_on_ha)+data[7]+getString(R.string.pdf_kg_on_ha)+data[14]+getString(R.string.pdf_kg_on_ha)+data[18]+getString(R.string.pdf_kg_on_ha),bfRoman);else
+                if(i==5)paragraph = new Paragraph(getString(R.string.pdf_strindg10)+":\nK2O:\nK2O:\nK2O:",bfRoman);else
+                if(i==6)paragraph = new Paragraph(data[12]+getString(R.string.pdf_kg_on_ha)+data[8]+getString(R.string.pdf_kg_on_ha)+data[15]+getString(R.string.pdf_kg_on_ha)+data[19]+getString(R.string.pdf_kg_on_ha),bfRoman);else
                 if(i==7)paragraph = new Paragraph("\nS:\nS:\nS:",bfRoman);else
-                if(i==8)paragraph = new Paragraph("\n"+data[9]+" кг/га\n"+data[16]+" кг/га\n"+data[20]+" кг/га\n",bfRoman);
+                if(i==8)paragraph = new Paragraph("\n"+data[9]+getString(R.string.pdf_kg_on_ha)+data[16]+getString(R.string.pdf_kg_on_ha)+data[20]+getString(R.string.pdf_kg_on_ha),bfRoman);
                 if(i==1||i==3||i==5||i==7)paragraph.setAlignment(Element.ALIGN_RIGHT);
                 PdfPCell cell = new PdfPCell();
                 cell.setMinimumHeight(72);
@@ -301,9 +308,9 @@ public class TabPdfFragment extends Fragment {
                 fertilising.addCell(cell);
             }
             document.add(fertilising);
-            document.add(new Paragraph("Подкормка",bfRomanBold));
+            document.add(new Paragraph(getString(R.string.pdf_string11),bfRomanBold));
             document.add(befourTable);
-            String[] elements = {"Подкормка","N,\nкг/га","P,\nкг/га","K,\nкг/га","S,\nкг/га","Ca,\nкг/га","Mg,\nкг/га","B,\nг/га","Cu,\nг/га","Zn,\nг/га","Mn,\nг/га","Fe,\nг/га","Mo,\nг/га","Co,\nг/га","J,\nг/га"};
+            String[] elements = {getString(R.string.pdf_string12),"N,\n"+getString(R.string.kg_at_ha),"P,\n"+getString(R.string.kg_at_ha),"K,\n"+getString(R.string.kg_at_ha),"S,\n"+getString(R.string.kg_at_ha),"Ca,\n"+getString(R.string.kg_at_ha),"Mg,\n"+getString(R.string.kg_at_ha),"B,\n"+getString(R.string.gr_on_ha),"Cu,\n"+getString(R.string.gr_on_ha),"Zn,\n"+getString(R.string.gr_on_ha),"Mn,\n"+getString(R.string.gr_on_ha),"Fe,\n"+getString(R.string.gr_on_ha),"Mo,\n"+getString(R.string.gr_on_ha),"Co,\n"+getString(R.string.gr_on_ha),"J,\n"+getString(R.string.gr_on_ha)};
             PdfPTable feed = new PdfPTable(new float[]{2,1,1,1,1,1,1,1,1,1,1,1,1,1,1});
             feed.setWidthPercentage(100);
             for (int i = 0;i<75;i++){
@@ -327,13 +334,13 @@ public class TabPdfFragment extends Fragment {
             document.add(feed);
             if(data.length>21){
                 Paragraph par = new Paragraph();
-                par.add(new Chunk("Примечания: ",bfRomanBold));
+                par.add(new Chunk(getString(R.string.pdf_string13),bfRomanBold));
                 par.add(new Chunk(data[21]+'\n',bfRoman));
                 document.add(par);
             }
             if(date!=null){
                 Paragraph dateMeasurings = new Paragraph();
-                dateMeasurings.add(new Chunk("Результат измерений от ", bfRomanBold));
+                dateMeasurings.add(new Chunk(getString(R.string.pdf_string14), bfRomanBold));
                 dateMeasurings.add(new Chunk(date, bfRoman));
                 document.add(dateMeasurings);
             }
@@ -355,9 +362,9 @@ public class TabPdfFragment extends Fragment {
                     Paragraph paragraph = null;
                     if(i==0)paragraph = new Paragraph(" ",inCellTextFont);
                     else if (i>0&&i<15)paragraph = new Paragraph(elements[i],inCellTextFont);
-                    else if (i==15)paragraph = new Paragraph("Изм.",inCellTextFont);
+                    else if (i==15)paragraph = new Paragraph(getString(R.string.pdf_string15),inCellTextFont);
                     else if (i==30)paragraph= new Paragraph("%",inCellTextFont);
-                    else if (i==45)paragraph = new Paragraph("ДВ",inCellTextFont);
+                    else if (i==45)paragraph = new Paragraph(getString(R.string.pdf_string_16),inCellTextFont);
                     else {
                         paragraph = new Paragraph(graphData[k]);
                     }
@@ -382,7 +389,7 @@ public class TabPdfFragment extends Fragment {
     }
 
     private void addMetaData(Document document, String date) {
-        document.addTitle("Анализ фотометра " + date);
+        document.addTitle(getString(R.string.pdf_string_17) + date);
     }
 
 
