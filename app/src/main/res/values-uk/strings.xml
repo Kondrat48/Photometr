@@ -129,4 +129,6 @@
     <string name="Phase_development">Фаза развитку</string>
     <string name="site">Наш сайт:</string>
     <string name="version_text">Версія</string>
+    <string name="developer2"><u>Артем Кондратюк</u></string>
+    <string name="developer">Розробник:</string>
 </resources>

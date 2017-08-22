@@ -128,4 +128,6 @@
     <string name="Phase_development">Phase development</string>
     <string name="site">Our website:</string>
     <string name="version_text">Version</string>
+    <string name="developer">Developer:</string>
+    <string name="developer2"><u>Artem Kondratiuk</u></string>
 </resources>

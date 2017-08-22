@@ -30,4 +30,9 @@ public class AboutProgram extends AppCompatActivity {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://agrovector.com.ua/"));
         startActivity(browserIntent);
     }
+
+    public void goToSiteDeveloper(View view) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.linkedin.com/in/artemkondratiuk/"));
+        startActivity(browserIntent);
+    }
 }
