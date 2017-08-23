@@ -10,4 +10,5 @@
     <color name="transparent">#00000000</color>
     <color name="rad">#F00000</color>
     <color name="lime">#80D872</color>
+    <color name="white">#FFFFFFFF</color>
 </resources>

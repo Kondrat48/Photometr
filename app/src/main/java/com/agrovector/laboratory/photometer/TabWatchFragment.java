@@ -1,10 +1,14 @@
 package com.agrovector.laboratory.photometer;
 
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -48,6 +52,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
 
 
+    @SuppressLint("StaticFieldLeak")
     private static TextView
             k1m, nm, pm, ksm, kclm, k2m, cam, mgm, bm, cum, k3m, znm, mnm, fem, k4m, mom, com, jm, k5m,
             k1100pr, n100pr, p100pr, ks100pr, kcl100pr, k2100pr, ca100pr, mg100pr, b100pr, cu100pr, k3100pr, zn100pr, mn100pr, fe100pr, k4100pr, mo100pr, co100pr, j100pr, k5100pr,
@@ -88,29 +93,21 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     private RelativeLayout frameLayout;
     private boolean isTableVisible = false;
     private Button buttonViewSwitcher;
-    private Button buttonWatchSettings;
     public Spinner spinner;
     private RelativeLayout buttonViewSwitcherLayout;
-    private final WeakReference<MainActivity> mActivity;
-    private LayoutInflater inflater;
-
-    public TabWatchFragment(MainActivity activity) {
-        mActivity = new WeakReference<>(activity);
-    }
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_watch,container,false);
-        this.inflater = inflater;
 
         table = view.findViewById(R.id.table);
         frame = view.findViewById(R.id.chart);
         spinner = view.findViewById(R.id.spinner);
         combinedChart = view.findViewById(R.id.chartInvisible);
         frameLayout = view.findViewById(R.id.chartLayout);
-        buttonWatchSettings = view.findViewById(R.id.settingsButtonWatch);
+        Button buttonWatchSettings = view.findViewById(R.id.settingsButtonWatch);
 
         buttonWatchSettings.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -188,7 +185,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
 
         ArrayList<String> dates = new ArrayList<>();
         dates.add(getString(R.string.empty));
-        updateSpinner(dates);
+        updateSpinner(dates, (MainActivity) getActivity());
     }
 
     public void createGraph(){
@@ -274,8 +271,8 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     public void animateChart(){mChart.animateXY(1000,1000);}
 
 
-    public void updateSpinner(ArrayList<String> dates){
-        spinner.setAdapter(new CustomArrayAdapter(getContext(),R.layout.custom_spinner_items,dates, mActivity));
+    public void updateSpinner(ArrayList<String> dates,MainActivity activity){
+        spinner.setAdapter(new CustomArrayAdapter(getContext(),R.layout.custom_spinner_items,dates, activity));
     }
 
 
@@ -406,6 +403,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
         combinedChart.setDrawGridBackground(false);
         combinedChart.setDrawBarShadow(false);
         combinedChart.setTouchEnabled(false);
+        combinedChart.setBackground(new ColorDrawable(ResourcesCompat.getColor(getResources(), R.color.white, null)));
 
         YAxis rightAxis = combinedChart.getAxisRight();
         rightAxis.setDrawGridLines(false);

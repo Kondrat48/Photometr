@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     private int values[];
     public TabWatchFragment tabWatchFragment;
     private TabDocumentSettingsFragment tabDocumentSettingsFragment;
-    private TabPdfFragment tabPdfFragment;
+    public TabPdfFragment tabPdfFragment;
     private MenuItem prevMenuItem;
     private Stack<Integer> pagesHistory = new Stack<>();
     private int vpPosition = 0;
@@ -196,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
                         if (doChangesInPdf()) {
                             changesInPdf = false;
                             tabDocumentSettingsFragment.setChanged();
+                            if(tabPdfFragment.logo==null)tabPdfFragment.updateImage();
                             tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements, tabWatchFragment.getData(), tabWatchFragment.getGraph());
                         } else {
                             tabPdfFragment.showPdf();
@@ -245,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        tabWatchFragment = new TabWatchFragment(this);
+        tabWatchFragment = new TabWatchFragment();
         tabDocumentSettingsFragment = new TabDocumentSettingsFragment();
         tabPdfFragment = new TabPdfFragment();
         adapter.addFragment(tabWatchFragment);
@@ -263,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     @SuppressLint("SimpleDateFormat")
-    public void createNewFile(final int type, final Integer pos) {
+    public boolean createNewFile(final int type, final Integer pos) {
         final boolean[] isCreatable = {false};
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -293,6 +294,7 @@ public class MainActivity extends AppCompatActivity {
                     pdfLoafed = true;
                 }
                 if (doChangesInPdf())
+                    if(tabPdfFragment.logo==null)tabPdfFragment.updateImage();
                     tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements, tabWatchFragment.getData(), tabWatchFragment.getGraph());
                 title = getString(R.string.enter_PDF_file_name);
                 ending = ".pdf";
@@ -341,6 +343,7 @@ public class MainActivity extends AppCompatActivity {
         });
         AlertDialog b = dialogBuilder.create();
         b.show();
+        return true;
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -412,11 +415,29 @@ public class MainActivity extends AppCompatActivity {
                         rzlt.values = values;
                         rzlt.number = Integer.parseInt(uri.getPath().substring(uri.getPath().lastIndexOf('/')+1,uri.getPath().lastIndexOf('/')+5));
                         rzlt.isSaved = true;
-                        rzlts.add(rzlt);
 
-                        updateSpinner();
-                        selectValues(rzlts.size()-1);
+                        boolean contains = false;
+                        int index = -1;
 
+                        for(int f = 0;f<rzlts.size();f++) {
+                            boolean containsValues = true;
+                            for (int g = 0; g < 19; g++) {
+                                if(rzlts.get(f).values[g]!=rzlt.values[g])containsValues = false;
+                            }
+                            if (containsValues && rzlts.get(f).date == rzlt.date && rzlts.get(f).number == rzlt.number) {
+                                contains = true;
+                                index = f;
+                            }
+                        }
+
+                        if(!contains){
+                            rzlts.add(rzlt);
+                            updateSpinner();
+                            selectValues(rzlts.size()-1);
+                        }
+                        else if(contains){
+                            selectValues(index);
+                        }
 
                         getSupportActionBar().setTitle(dateMeasurements);
 
@@ -432,7 +453,10 @@ public class MainActivity extends AppCompatActivity {
                         tabDocumentSettingsFragment.updateCmt(uri);
                     } else
                         Toast.makeText(MainActivity.this, R.string.File_format_not_supported, Toast.LENGTH_SHORT).show();
-                    if(vpPosition==2)tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements, tabWatchFragment.getData(), tabWatchFragment.getGraph());
+                    if(vpPosition==2){
+                        if(tabPdfFragment.logo==null)tabPdfFragment.updateImage();
+                        tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements, tabWatchFragment.getData(), tabWatchFragment.getGraph());
+                    }
 
                 }
                 break;
@@ -654,8 +678,21 @@ public class MainActivity extends AppCompatActivity {
         String langPref = "Language";
         SharedPreferences prefs = getSharedPreferences("CommonPrefs", Activity.MODE_PRIVATE);
         String language = prefs.getString(langPref, "");
-        if (language.equalsIgnoreCase(""))
-            return;
+        if (language.equalsIgnoreCase("")){
+            switch (Locale.getDefault().getDisplayLanguage()){
+                case "українська":
+                    saveLocale("uk");
+                    break;
+                case "English":
+                    saveLocale("en");
+                    break;
+                default:
+                    saveLocale("ru");
+                    break;
+            }
+            loadLocale();
+        }
+
         mLocale = new Locale(language);
         Locale.setDefault(mLocale);
         android.content.res.Configuration config = new android.content.res.Configuration();
@@ -786,7 +823,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             dates.add(getString(R.string.empty));
             values = null;
-            tabWatchFragment.updateSpinner(dates);
+            tabWatchFragment.updateSpinner(dates,MainActivity.this);
             tabWatchFragment.update(values,null);
             getSupportActionBar().setTitle(R.string.app_name);
         }
@@ -801,7 +838,7 @@ public class MainActivity extends AppCompatActivity {
             temp = new DecimalFormat("0000").format(rzlts.get(i).number)+" - "+new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(i).date));
             dates.add(temp);
         }
-        tabWatchFragment.updateSpinner(dates);
+        tabWatchFragment.updateSpinner(dates,MainActivity.this);
     }
 
     private static class MyHandler extends Handler {
@@ -816,7 +853,6 @@ public class MainActivity extends AppCompatActivity {
             switch (msg.what) {
                 case UsbService.MESSAGE_READ_CONTENT:
                     UsbService.Slot slot[] = (UsbService.Slot[]) msg.obj;
-
                     ArrayList<Integer> slots = new ArrayList<>();
                     for (int i = 0; i < slot.length; i++) if (slot[i].enabled) slots.add(i + 1);
 
@@ -845,11 +881,29 @@ public class MainActivity extends AppCompatActivity {
                                                     mActivity.get().usbService.readSlot(numb);
                                                     Rzlt rzlt = mActivity.get().usbService.getResult();
                                                     rzlt.number = numb+1;
-                                                    if(!mActivity.get().rzlts.contains(rzlt)){
+
+                                                    boolean contains = false;
+                                                    int index = -1;
+
+                                                    for(int f = 0;f<mActivity.get().rzlts.size();f++) {
+                                                        boolean containsValues = true;
+                                                        for (int g = 0; g < 19; g++) {
+                                                            if(mActivity.get().rzlts.get(f).values[g]!=rzlt.values[g])containsValues = false;
+                                                        }
+                                                        if (containsValues && mActivity.get().rzlts.get(f).date == rzlt.date && mActivity.get().rzlts.get(f).number == rzlt.number) {
+                                                            contains = true;
+                                                            index = f;
+                                                        }
+                                                    }
+
+                                                    if(!contains){
                                                         mActivity.get().rzlts.add(rzlt);
                                                         mActivity.get().updateSpinner();
                                                         mActivity.get().lastSelectedItemPos = -1;
                                                         mActivity.get().selectValues(mActivity.get().rzlts.size()-1);
+                                                    }
+                                                    else if(contains){
+                                                        mActivity.get().selectValues(index);
                                                     }
                                                 }
                                             }

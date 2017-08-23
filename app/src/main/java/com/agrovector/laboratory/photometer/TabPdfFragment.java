@@ -42,6 +42,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.FileChannel;
 
 
@@ -103,7 +104,8 @@ public class TabPdfFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_print,container,false);
         frame = view.findViewById(R.id.container_print);
         file = new File(getActivity().getFilesDir()+"/temp.pdf");
-        if(new File(getActivity().getFilesDir()+"/temp.png").exists()){
+        if(logoUri!=null)updateImage();
+        else if(new File(getActivity().getFilesDir()+"/temp.png").exists()){
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
             logo = BitmapFactory.decodeFile(getActivity().getFilesDir()+"/temp.png", options);
@@ -120,7 +122,7 @@ public class TabPdfFragment extends Fragment {
                     ft.remove(prev);
                 }
                 ft.addToBackStack(null);
-                fragment = InfoDialogFragment.newInstance(TabPdfFragment.this, logoUri);
+                fragment = InfoDialogFragment.newInstance(TabPdfFragment.this);
                 fragment.show(ft,"dialog");
             }
         });
@@ -134,10 +136,24 @@ public class TabPdfFragment extends Fragment {
         bfRoman = new Font(roman, 10);
         bfRomanBold = new Font(roman,10,Font.BOLD);
 
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP)buttonSettings.setVisibility(View.GONE);
+
         return view;
     }
 
+    public void updateImage() {
+        if (logoUri != null) {
+            InputStream imageStream = null;
+            try {
+                imageStream = getContext().getContentResolver().openInputStream(logoUri);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            logo = BitmapFactory.decodeStream(imageStream);
+        }
+        else logo = null;
 
+    }
 
 
     public void update(String[] data, String date, String[] graphData, Bitmap graph){
@@ -188,7 +204,6 @@ public class TabPdfFragment extends Fragment {
             cellMain = new PdfPCell();
             cellMain.setBorder(Rectangle.NO_BORDER);
             if(logoBitmsp!=null){
-
                 Bitmap imageWithBG = Bitmap.createBitmap(logoBitmsp.getWidth(), logoBitmsp.getHeight(),logoBitmsp.getConfig());
                 imageWithBG.eraseColor(Color.WHITE);
                 Canvas canvas = new Canvas(imageWithBG);

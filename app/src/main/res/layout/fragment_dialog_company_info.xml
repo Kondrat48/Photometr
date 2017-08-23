@@ -42,14 +42,13 @@
                     android:id="@+id/button_logo_change_img"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
                     android:background="@color/transparent"
                     android:clickable="true"
                     android:gravity="center"
                     android:text="@string/select"
-                    android:textColor="@color/colorAccent" />
+                    android:textColor="@color/colorAccent"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true" />
 
                 <Button
                     android:id="@+id/button_logo_img_clear"

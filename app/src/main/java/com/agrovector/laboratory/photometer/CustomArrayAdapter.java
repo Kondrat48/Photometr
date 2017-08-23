@@ -33,14 +33,14 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
     private final WeakReference<MainActivity> mActivity;
 
     public CustomArrayAdapter(@NonNull Context context, @LayoutRes int resource,
-                              @NonNull ArrayList<String> objects, WeakReference<MainActivity> mActivity) {
+                              @NonNull ArrayList<String> objects, MainActivity activity) {
         super(context, resource, 0, objects);
 
         mContext = context;
         mInflater = LayoutInflater.from(context);
         mResource = resource;
         items = objects;
-        this.mActivity = mActivity;
+        this.mActivity = new WeakReference<>(activity);
     }
     @Override
     public View getDropDownView(int position, @Nullable View convertView,
@@ -73,8 +73,7 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
                                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        mActivity.get().createNewFile(3,position);
-                                        mActivity.get().closeItem(position);
+                                        if(mActivity.get().createNewFile(3,position))mActivity.get().closeItem(position);
                                     }
                                 })
                                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -83,7 +82,8 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
                                         mActivity.get().closeItem(position);
                                     }
                                 })
-                                .setCancelable(false);
+                                .setCancelable(false)
+                                .create().show();
                     }
                 }
             });

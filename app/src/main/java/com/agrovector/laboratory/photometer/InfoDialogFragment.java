@@ -48,20 +48,19 @@ public class InfoDialogFragment extends DialogFragment {
     public Bitmap selectedImage;
     private Uri imageUri;
 
-    public static InfoDialogFragment newInstance(TabPdfFragment fragment, Uri logoUri) {
-        InfoDialogFragment f = new InfoDialogFragment(fragment, logoUri);
+    public static InfoDialogFragment newInstance(TabPdfFragment fragment) {
+        InfoDialogFragment f = new InfoDialogFragment();
         mFragmrnt = new WeakReference<>(fragment);
         return f;
     }
 
-    public InfoDialogFragment(TabPdfFragment fragment, Uri logoUri){
-        mFragmrnt = new WeakReference<>(fragment);
-        imageUri = logoUri;
-    }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        MainActivity activity = (MainActivity) getActivity();
+        mFragmrnt = new WeakReference<TabPdfFragment>(activity.tabPdfFragment);
+        imageUri = activity.tabPdfFragment.logoUri;
         LayoutInflater inflater = getActivity().getLayoutInflater();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View view = inflater.inflate(R.layout.fragment_dialog_company_info, null);
