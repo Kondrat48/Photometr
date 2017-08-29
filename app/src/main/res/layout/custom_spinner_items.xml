@@ -6,11 +6,10 @@
 
     <TextView
         android:id="@+id/date_textView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:textColor="#000"
-        android:layout_toStartOf="@+id/button_close_graph" />
+        android:textColor="#000" />
 
     <Button
         android:id="@+id/button_close_graph"

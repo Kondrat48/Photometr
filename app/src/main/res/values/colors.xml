@@ -11,4 +11,5 @@
     <color name="rad">#F00000</color>
     <color name="lime">#80D872</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="background_material_light">#fafafa</color>
 </resources>

@@ -13,6 +13,10 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +24,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -27,17 +32,27 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.Toolbar;
+import android.text.Layout;
+import android.text.TextPaint;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.felhr.usbserial.UsbSerialDevice;
 
 import com.agrovector.laboratory.photometer.UsbService.Rzlt;
+import com.github.amlcurran.showcaseview.MaterialShowcaseDrawer;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -61,12 +76,15 @@ public class MainActivity extends AppCompatActivity {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
+    private boolean connected;
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case UsbService.ACTION_USB_PERMISSION_GRANTED: // USB PERMISSION GRANTED
                     Toast.makeText(context, R.string.USB_PERMISSION_GRANTED, Toast.LENGTH_SHORT).show();
+                    if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST))menu.findItem(R.id.item_download_file).setVisible(true);
+                    connected = true;
                     break;
                 case UsbService.ACTION_USB_PERMISSION_NOT_GRANTED: // USB PERMISSION NOT GRANTED
                     Toast.makeText(context, R.string.USB_PERMISSION_NOT_GRANTED, Toast.LENGTH_SHORT).show();
@@ -76,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case UsbService.ACTION_USB_DISCONNECTED: // USB DISCONNECTED
                     Toast.makeText(context, R.string.USB_DISCONNECTED, Toast.LENGTH_SHORT).show();
+                    if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST))menu.findItem(R.id.item_download_file).setVisible(false);
+                    connected = false;
                     break;
                 case UsbService.ACTION_USB_NOT_SUPPORTED: // USB NOT SUPPORTED
                     Toast.makeText(context, R.string.USB_NOT_SUPPORTED, Toast.LENGTH_SHORT).show();
@@ -116,6 +136,9 @@ public class MainActivity extends AppCompatActivity {
     public int lastSelectedItemPos = 0;
     private boolean pdfLoafed = false;
     private Locale mLocale;
+    private int currentShowcase;
+    public SharedPreferences prefs;
+    private Menu menu;
 
 
     @Override
@@ -142,10 +165,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         loadLocale();
-        getSupportActionBar().setTitle(R.string.app_name);
-        mHandler = new MyHandler(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setTitle(R.string.app_name);
+        invalidateOptionsMenu();
+        mHandler = new MyHandler(this);
 
         vpPager = (CustomViewPager) findViewById(R.id.main_container);
         vpPager.setPagingEnabled(false);
@@ -164,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.navigation_document_settings:
                         vpPager.setCurrentItem(1);
                         break;
-                    case R.id.navigation_print:
+                    case R.id.navigation_PDF:
                         vpPager.setCurrentItem(2);
                         break;
                 }
@@ -220,18 +247,166 @@ public class MainActivity extends AppCompatActivity {
             root.mkdirs();
         }
         setupViewPager(vpPager);
+        currentShowcase = -2;
+        prefs = getSharedPreferences("Firststart", MODE_PRIVATE);
+        if (prefs.getBoolean("firstrun", true)) {
+            showcase();
+//            prefs.edit().putBoolean("firstrun", false).commit();
+        }
 
+
+
+    }
+
+
+    @SuppressWarnings("deprecation")
+    private void showcase(){
+        View view = null;
+        String string = null, title = null;
+        switch (currentShowcase){
+            case -2:
+                string = getString(R.string.help_info);
+                title = getString(R.string.help_info_title);
+                break;
+            case -1:
+                if(!getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST)){
+                    string = getString(R.string.otg_not_supported_help);
+                    title = getString(R.string.otg_not_supported_help_title);
+                    break;
+                }else currentShowcase++;
+            case 0:
+                vpPager.setCurrentItem(0);
+                string = getString(R.string.watch_help);
+                title = getString(R.string.watch_help_title);
+                view = findViewById(R.id.navigation_watch);
+                break;
+            case 1:
+                string = getString(R.string.choose_help);
+                title = getString(R.string.choose_help_title);
+                view = findViewById(R.id.date_textView);
+                break;
+            case 2:
+                string = getString(R.string.close_item_help);
+                title = getString(R.string.close_item_help_title);
+                view = findViewById(R.id.button_close_graph);
+                break;
+            case 3:
+                string = getString(R.string.button_view_switcher_help);
+                title = getString(R.string.button_view_switcher_help_title);
+                view = findViewById(R.id.button_view_switcher);
+                break;
+            case 4:
+                string = getString(R.string.info_help);
+                title = getString(R.string.info_help_title);
+                vpPager.setCurrentItem(1);
+                view = findViewById(R.id.navigation_document_settings);
+                break;
+            case 5:
+                string = getString(R.string.pdf_help);
+                title = getString(R.string.pdf_help_title);
+                vpPager.setCurrentItem(2);
+                view = findViewById(R.id.navigation_PDF);
+                break;
+            case 6:
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                    string = getString(R.string.pdf_settings_help);
+                    title = getString(R.string.pdf_settings_help_title);
+                    view = findViewById(R.id.settingsButtonPdf);
+                    break;
+                }
+                else currentShowcase++;
+            case 7:
+                vpPager.setCurrentItem(0);
+                pagesHistory.clear();
+                if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST)){
+                    menu.findItem(R.id.item_download_file).setVisible(true);
+                    string = getString(R.string.download_help);
+                    title = getString(R.string.download_help_title);
+                    view = findViewById(R.id.item_download_file);
+                    break;
+                }
+                else currentShowcase++;
+            case 8:
+                if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST))menu.findItem(R.id.item_download_file).setVisible(false);
+                view = findViewById(R.id.item_save_file);
+                title = getString(R.string.save_help_title);
+                string = getString(R.string.save_help);
+                break;
+            case 9:
+                string = getString(R.string.open_help);
+                title = getString(R.string.open_help_title);
+                view = findViewById(R.id.item_open_file);
+                break;
+            default:
+                prefs.edit().putBoolean("firstrun", false).commit();
+                if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST))menu.findItem(R.id.item_download_file).setVisible(false);
+                changesInPdf = true;
+                closeItem(0);
+                closeItem(0);
+                break;
+
+        }
+
+        TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        paint.setTextSize(getResources().getDimension(R.dimen.abc_text_size_body_1_material));
+        paint.setColor(Color.WHITE);
+        paint.setTypeface(Typeface.createFromAsset(getAssets(), "RobotoSlab-Regular.ttf"));
+
+        TextPaint paintTitle = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        paintTitle.setTextSize(getResources().getDimension(R.dimen.abc_text_size_headline_material));
+        paintTitle.setColor(Color.BLUE);
+        paintTitle.setTypeface(Typeface.createFromAsset(getAssets(), "RobotoSlab-Regular.ttf"));
+
+        Button button = new Button(this);
+        button.setText(getString(R.string.next));
+        button.setTextColor(getResources().getColor(R.color.white));
+
+        ShowcaseView showcaseView;
+        if(currentShowcase<10)
+        {
+            ShowcaseView.Builder builder = new ShowcaseView.Builder(this);
+            builder
+                    .withMaterialShowcase()
+                    .setContentText(string)
+                    .setContentTitle(title)
+                    .setContentTextPaint(paint)
+                    .setContentTitlePaint(paintTitle)
+                    .replaceEndButton(button);
+            button.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+            if(currentShowcase==5||currentShowcase==6){
+                RelativeLayout.LayoutParams paramsButton = (RelativeLayout.LayoutParams) button.getLayoutParams();
+                paramsButton.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                paramsButton.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            }
+            if(currentShowcase==1)builder.setShowcaseDrawer(new MyShowcaseDrawer(this.getResources()));
+            if(view!=null)builder.setTarget(new ViewTarget(view));
+            builder.blockAllTouches()
+                    .setStyle(R.style.CustomShowcaseTheme2)
+                    .setShowcaseEventListener(
+                            new SimpleShowcaseEventListener() {
+                                @Override
+                                public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                                    currentShowcase++;
+                                    showcase();
+                                }
+                            }
+                    );
+            showcaseView = builder.build();
+            showcaseView.setDetailTextAlignment(Layout.Alignment.ALIGN_CENTER);
+            showcaseView.setTitleTextAlignment(Layout.Alignment.ALIGN_CENTER);
+        }
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
+
+
     }
+
 
     @Override
     public void onPause() {
@@ -257,14 +432,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
+        this.menu = menu;
+        getMenuInflater().inflate(R.menu.menu, menu);
+        menu.findItem(R.id.item_download_file).setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
 
     @SuppressLint("SimpleDateFormat")
-    public boolean createNewFile(final int type, final Integer pos) {
+    public boolean createNewFile(final int type, final Integer pos, final boolean close) {
         final boolean[] isCreatable = {false};
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -329,7 +505,7 @@ public class MainActivity extends AppCompatActivity {
                             tabPdfFragment.savePdf(dir);
                             break;
                         case 3:
-                            saveRzlts(str,pos);
+                            saveRzlts(str,pos,close);
                             break;
                     }
                     Toast.makeText(MainActivity.this, getString(R.string.file_saved_in) + Environment.getExternalStorageDirectory() + "/Photometer/" + str, Toast.LENGTH_SHORT).show();
@@ -347,7 +523,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private void saveRzlts(String str, int pos) {
+    private void saveRzlts(String str, int pos, boolean close) {
         int i = 0, k = 0;
         String temp;
         StringBuilder builder = new StringBuilder();
@@ -368,6 +544,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         rzlts.get(pos).isSaved=true;
+        if(close)closeItem(pos);
     }
 
 
@@ -413,7 +590,11 @@ public class MainActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                         rzlt.values = values;
-                        rzlt.number = Integer.parseInt(uri.getPath().substring(uri.getPath().lastIndexOf('/')+1,uri.getPath().lastIndexOf('/')+5));
+                        try {
+                            rzlt.number = Integer.parseInt(uri.getPath().substring(uri.getPath().lastIndexOf('/')+1,uri.getPath().lastIndexOf('/')+5));
+                        }catch (NumberFormatException e){
+                            rzlt.number = 0;
+                        }
                         rzlt.isSaved = true;
 
                         boolean contains = false;
@@ -503,24 +684,52 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.item_open_file:
-                AlertDialog dialogInfo;
-                final AlertDialog.Builder builderInfo = new AlertDialog.Builder(this);
-                builderInfo.setTitle(R.string.select_file)
-                        .setMessage(R.string.select_file_message)
-                        .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                            @Override
-                            public void onCancel(DialogInterface dialogInterface) {
-                                Toast.makeText(MainActivity.this, R.string.no_file_selected, Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                performFileSearch();
-                            }
-                        });
-                dialogInfo = builderInfo.create();
-                dialogInfo.show();
+
+
+
+                final SharedPreferences prefs1 = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                boolean previouslyStarted = prefs1.getBoolean("pref_previously_started", false);
+                if(!previouslyStarted) {
+
+
+                    final boolean[] isChecked = {false};
+                    View checkBoxView = View.inflate(this, R.layout.checkbox, null);
+                    CheckBox checkBox = checkBoxView.findViewById(R.id.checkbox);
+                    checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean b) {
+                            isChecked[0] = b;
+                        }
+                    });
+                    checkBox.setText(getString(R.string.dont_show));
+
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+                    builder1.setTitle(R.string.select_file);
+                    builder1.setMessage(R.string.select_file_message)
+                            .setView(checkBoxView)
+                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                @Override
+                                public void onCancel(DialogInterface dialogInterface) {
+                                    Toast.makeText(MainActivity.this, R.string.no_file_selected, Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    performFileSearch();
+                                    if(isChecked[0]){
+                                        SharedPreferences.Editor edit = prefs1.edit();
+                                        edit.putBoolean("pref_previously_started", Boolean.TRUE);
+                                        edit.commit();
+                                    }
+                                }
+                            })
+                            .show();
+                }else performFileSearch();
+
+
+
                 return true;
             case R.id.item_save_file:
                 if(isStoragePermissionGranted()){
@@ -547,9 +756,9 @@ public class MainActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int id) {
                                     if (seletedItems.isEmpty())
                                         Toast.makeText(MainActivity.this, R.string.You_did_not_select_any_files_to_save, Toast.LENGTH_SHORT).show();
-                                    if (seletedItems.contains(0)) createNewFile(0, null);
-                                    if (seletedItems.contains(1)) createNewFile(1, null);
-                                    if (seletedItems.contains(2)) createNewFile(2, null);
+                                    if (seletedItems.contains(0)) createNewFile(0, null, false);
+                                    if (seletedItems.contains(1)) createNewFile(1, null, false);
+                                    if (seletedItems.contains(2)) createNewFile(2, null, false);
                                     if (seletedItems.contains(3)) createGraphSaveDialog();
                                     seletedItems.clear();
                                 }
@@ -600,7 +809,7 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                String lang = "ru";
+                                String lang = "en";
                                 switch (newSelectedItem[0]) {
                                     case 2:
                                         lang = "en";
@@ -627,7 +836,8 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
 //            case R.id.item_help:
-//
+//                Intent intentHelp = new Intent(this, HelpActivity.class);
+//                startActivity(intentHelp);
 //                return true;
 
             case R.id.item_about:
@@ -678,19 +888,9 @@ public class MainActivity extends AppCompatActivity {
         String langPref = "Language";
         SharedPreferences prefs = getSharedPreferences("CommonPrefs", Activity.MODE_PRIVATE);
         String language = prefs.getString(langPref, "");
-        if (language.equalsIgnoreCase("")){
-            switch (Locale.getDefault().getDisplayLanguage()){
-                case "українська":
-                    saveLocale("uk");
-                    break;
-                case "English":
-                    saveLocale("en");
-                    break;
-                default:
-                    saveLocale("ru");
-                    break;
-            }
-            loadLocale();
+        if (language.equals("")){
+            language = Locale.getDefault().getLanguage();
+            saveLocale(language);
         }
 
         mLocale = new Locale(language);
@@ -743,7 +943,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             if(!selectedList.isEmpty()){
                                 for(int n = 0; n < selectedList.size(); n++){
-                                    createNewFile(3,selectedList.get(n));
+                                    createNewFile(3,selectedList.get(n), false);
                                 }
                             }else Toast.makeText(MainActivity.this, R.string.You_did_not_select_a_dimension_to_save, Toast.LENGTH_SHORT).show();
                             selectedList.clear();
@@ -810,14 +1010,20 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> dates = new ArrayList<>();
         if(rzlts.size()>0){
             updateSpinner();
+            if (values==null)values=new int[19];
             if(pos<=lastSelectedItemPos){
-                tabWatchFragment.spinner.setSelection(pos);
+
                 if(pos==lastSelectedItemPos){
                     selectValues(0);
+                    if(values==null)values = new int[19];
                     for(int y = 0;y<19;y++)values[y]=rzlts.get(0).values[y];
                     tabWatchFragment.update(values,null);
+                    lastSelectedItemPos = 0;
+                }else {
+                    tabWatchFragment.spinner.setSelection(pos);
+                    values = rzlts.get(pos).values;
+                    lastSelectedItemPos = pos;
                 }
-                lastSelectedItemPos = pos;
             }
 
         } else {

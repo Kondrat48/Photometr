@@ -12,8 +12,8 @@ android {
         applicationId "com.agrovector.laboratory.photometer"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 4
-        versionName "1.0.3"
+        versionCode 6
+        versionName "1.0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -41,4 +41,5 @@ dependencies {
     compile 'com.github.barteksc:android-pdf-viewer:2.7.0-beta.1'
     compile 'com.github.felHR85:UsbSerial:4.5'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.github.amlcurran.showcaseview:library:5.4.3'
 }

@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -36,6 +37,8 @@ import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.ViewPortHandler;
+
+import com.agrovector.laboratory.photometer.UsbService.Rzlt;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -75,7 +78,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     private static final double a[]=new double[19];
     private static final double b[]=new double[19];
     private static final double kgOnHa100perc[]={0,50,20,50,10,0,40,5,0.01,0.2,0,0.5,0.5,0.5,0,0.5,0.03,0.02,0};
-    private static final double db100perc[]={0,23,5.4,22.5,5.2,0,8.8,0.5,11,52,0,115,160,100,0,270,13.6,15.3,0};
+    private static final double db100perc[]={0,23,10.4,20,6,0,8.8,0.3,110,100,0,100,120,100,0,1.5,0.4,0.5,0};
 
     private static final TextView measuring[] = {k1m, nm, pm, ksm, kclm, k2m, cam, mgm, bm, cum, k3m, znm, mnm, fem, k4m, mom, com, jm, k5m};
 
@@ -105,6 +108,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
         table = view.findViewById(R.id.table);
         frame = view.findViewById(R.id.chart);
         spinner = view.findViewById(R.id.spinner);
+
         combinedChart = view.findViewById(R.id.chartInvisible);
         frameLayout = view.findViewById(R.id.chartLayout);
         Button buttonWatchSettings = view.findViewById(R.id.settingsButtonWatch);
@@ -186,6 +190,20 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
         ArrayList<String> dates = new ArrayList<>();
         dates.add(getString(R.string.empty));
         updateSpinner(dates, (MainActivity) getActivity());
+
+        if (((MainActivity) getActivity()).prefs.getBoolean("firstrun", true)) {
+
+            Rzlt rzlt = new Rzlt();
+            rzlt.values = new int[]{14, 15, 10, 15, 16, 15, 14, 18, 15, 13, 21, 19, 21, 22, 20, 23, 24, 22, 21};
+            rzlt.number = 1;
+            rzlt.date = System.currentTimeMillis();
+            rzlt.isSaved = true;
+            ((MainActivity) getActivity()).rzlts.add(rzlt);
+            ((MainActivity) getActivity()).updateSpinner();
+            update(rzlt.values,null);
+
+//            prefs.edit().putBoolean("firstrun", false).commit();
+        }
     }
 
     public void createGraph(){

@@ -101,7 +101,7 @@ public class TabPdfFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_print,container,false);
+        View view = inflater.inflate(R.layout.fragment_pdf,container,false);
         frame = view.findViewById(R.id.container_print);
         file = new File(getActivity().getFilesDir()+"/temp.pdf");
         if(logoUri!=null)updateImage();

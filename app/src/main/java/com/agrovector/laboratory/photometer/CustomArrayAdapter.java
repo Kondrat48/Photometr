@@ -73,7 +73,7 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
                                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        if(mActivity.get().createNewFile(3,position))mActivity.get().closeItem(position);
+                                        mActivity.get().createNewFile(3,position,true);
                                     }
                                 })
                                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -103,4 +103,5 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
 
         return view;
     }
+
 }
