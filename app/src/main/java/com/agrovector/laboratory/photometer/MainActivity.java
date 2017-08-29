@@ -349,12 +349,10 @@ public class MainActivity extends AppCompatActivity {
 
         TextPaint paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         paint.setTextSize(getResources().getDimension(R.dimen.abc_text_size_body_1_material));
-        paint.setColor(Color.WHITE);
         paint.setTypeface(Typeface.createFromAsset(getAssets(), "RobotoSlab-Regular.ttf"));
 
         TextPaint paintTitle = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         paintTitle.setTextSize(getResources().getDimension(R.dimen.abc_text_size_headline_material));
-        paintTitle.setColor(Color.BLUE);
         paintTitle.setTypeface(Typeface.createFromAsset(getAssets(), "RobotoSlab-Regular.ttf"));
 
         Button button = new Button(this);

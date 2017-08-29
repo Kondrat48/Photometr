@@ -56,11 +56,17 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
     private View createItemView(final int position, View convertView, ViewGroup parent){
         final View view = mInflater.inflate(mResource, parent, false);
 
-        TextView measuringInfo = view.findViewById(R.id.date_textView);
-        Button button = view.findViewById(R.id.button_close_graph);
+        final TextView measuringInfo = view.findViewById(R.id.date_textView);
+        final Button button = view.findViewById(R.id.button_close_graph);
 
         measuringInfo.setText(items.get(position));
         if(!items.get(position).equals(mContext.getString(R.string.empty))){
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    measuringInfo.performClick();
+                }
+            });
             button.setOnClickListener(new View.OnClickListener() {
                 @SuppressLint("SimpleDateFormat")
                 @Override
