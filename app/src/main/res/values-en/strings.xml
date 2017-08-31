@@ -156,4 +156,5 @@
     <string name="watch_help">Use the bottom panel to navigate through the application. When you click on the \"Watch\" button, a tab opens with information about the open measurement files.</string>
     <string name="watch_help_title">Watch</string>
     <string name="dont_show">Do not show again.</string>
+    <string name="otg_suport">OTG support:</string>
 </resources>

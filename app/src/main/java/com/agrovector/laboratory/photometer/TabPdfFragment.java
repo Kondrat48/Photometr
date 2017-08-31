@@ -156,24 +156,30 @@ public class TabPdfFragment extends Fragment {
     }
 
 
-    public void update(String[] data, String date, String[] graphData, Bitmap graph){
-        try {
-            this.data = data;
-            this.date = date;
-            this.graphData = graphData;
-            this.graph = graph;
-            Document document = new Document(PageSize.A4);
-            PdfWriter.getInstance(document, new FileOutputStream(file));
-            document.open();
-            addMetaData(document,null);
+    public void update(final String[] data, final String date, final String[] graphData, final Bitmap graph){
+        this.data = data;
+        this.date = date;
+        this.graphData = graphData;
+        this.graph = graph;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Document document = new Document(PageSize.A4);
+                    PdfWriter.getInstance(document, new FileOutputStream(file));
+                    document.open();
+                    addMetaData(document,null);
 
-            addPage(document, data,companyInfoString,date,graphData,graph,logo);
-            document.close();
-        } catch (DocumentException | FileNotFoundException e) {
-            e.printStackTrace();
-        }
+                    addPage(document, data,companyInfoString,date,graphData,graph,logo);
+                    document.close();
+                } catch (DocumentException | FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                showPdf();
+            }
+        }).start();
 
-        showPdf();
+
     }
 
     public void savePdf(File fileToSave){

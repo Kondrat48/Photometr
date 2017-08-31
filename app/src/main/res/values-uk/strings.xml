@@ -157,4 +157,5 @@
     <string name="watch_help">Для навігації по програмі використовуйте нижню панель. При натисканні на кнопку \"Перегляд\" відкривається вкладка з інформацією про відкриті файли вимірювань.</string>
     <string name="watch_help_title">Перегляд</string>
     <string name="dont_show">Більше не показувати</string>
+    <string name="otg_suport">Підтримка OTG:</string>
 </resources>

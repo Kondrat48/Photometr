@@ -3,6 +3,7 @@ package com.agrovector.laboratory.photometer;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -17,7 +18,9 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,10 +42,12 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -139,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
     private int currentShowcase;
     public SharedPreferences prefs;
     private Menu menu;
+    private Dialog loadingDialog;
 
 
     @Override
@@ -253,8 +259,6 @@ public class MainActivity extends AppCompatActivity {
             showcase();
 //            prefs.edit().putBoolean("firstrun", false).commit();
         }
-
-
 
     }
 
@@ -775,9 +779,17 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.item_download_file:
+                startLoadingDialog();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (usbService.serialPortConnected){
+                            usbService.readContent();
+                        }
+                        else Toast.makeText(MainActivity.this, R.string.photometr_not_conected,Toast.LENGTH_SHORT).show();
+                    }
+                }).start();
 
-                if (usbService.serialPortConnected)usbService.readContent();
-                else Toast.makeText(MainActivity.this, R.string.photometr_not_conected,Toast.LENGTH_SHORT).show();
 
                 return true;
             case R.id.item_language:
@@ -785,11 +797,15 @@ public class MainActivity extends AppCompatActivity {
                 CharSequence[] items = new CharSequence[]{"Русский","Українська"," English"};
                 final int selectedItem;
 
-                switch (Locale.getDefault().getDisplayLanguage()){
-                    case "українська":
+                String langPref = "Language";
+                SharedPreferences prefs = getSharedPreferences("CommonPrefs", Activity.MODE_PRIVATE);
+                String language = prefs.getString(langPref, "");
+
+                switch (language){
+                    case "uk":
                         selectedItem = 1;
                         break;
-                    case "English":
+                    case "en":
                         selectedItem = 2;
                         break;
                     default:
@@ -846,6 +862,20 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void startLoadingDialog() {
+        loadingDialog = new Dialog(this);
+        loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        loadingDialog.setContentView(R.layout.loading_dialog);
+        loadingDialog.setCancelable(false);
+        loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        loadingDialog.show();
+    }
+
+    private void stopLoadingDialog() {
+        loadingDialog.cancel();
+    }
+
 
     public void changeLang(String lang)
     {
@@ -1047,6 +1077,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static class MyHandler extends Handler {
         private final WeakReference<MainActivity> mActivity;
+        private boolean contains;
+        private Rzlt rzlt;
+        private int index;
 
         public MyHandler(MainActivity activity) {
             mActivity = new WeakReference<>(activity);
@@ -1056,6 +1089,7 @@ public class MainActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UsbService.MESSAGE_READ_CONTENT:
+                    mActivity.get().stopLoadingDialog();
                     UsbService.Slot slot[] = (UsbService.Slot[]) msg.obj;
                     ArrayList<Integer> slots = new ArrayList<>();
                     for (int i = 0; i < slot.length; i++) if (slot[i].enabled) slots.add(i + 1);
@@ -1079,38 +1113,39 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
                                         if(!selectedItems.isEmpty()){
-                                            for(int j = 0; j<items.length;j++){
-                                                if(selectedItems.contains(j)){
-                                                    int numb = Integer.parseInt(String.valueOf(items[j]))-1;
-                                                    mActivity.get().usbService.readSlot(numb);
-                                                    Rzlt rzlt = mActivity.get().usbService.getResult();
-                                                    rzlt.number = numb+1;
+                                            mActivity.get().startLoadingDialog();
+                                            new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    for(int j = 0; j<items.length;j++){
+                                                        if(selectedItems.contains(j)){
+                                                            int numb = Integer.parseInt(String.valueOf(items[j]))-1;
+                                                            mActivity.get().usbService.readSlot(numb);
+                                                            rzlt = mActivity.get().usbService.getResult();
+                                                            rzlt.number = numb+1;
 
-                                                    boolean contains = false;
-                                                    int index = -1;
+                                                            contains = false;
+                                                            index = -1;
 
-                                                    for(int f = 0;f<mActivity.get().rzlts.size();f++) {
-                                                        boolean containsValues = true;
-                                                        for (int g = 0; g < 19; g++) {
-                                                            if(mActivity.get().rzlts.get(f).values[g]!=rzlt.values[g])containsValues = false;
+                                                            for(int f = 0;f<mActivity.get().rzlts.size();f++) {
+                                                                boolean containsValues = true;
+                                                                for (int g = 0; g < 19; g++) {
+                                                                    if(mActivity.get().rzlts.get(f).values[g]!=rzlt.values[g])containsValues = false;
+                                                                }
+                                                                if (containsValues && mActivity.get().rzlts.get(f).date == rzlt.date && mActivity.get().rzlts.get(f).number == rzlt.number) {
+                                                                    contains = true;
+                                                                    index = f;
+                                                                }
+                                                            }
+
+                                                            mActivity.get().mHandler.obtainMessage(10).sendToTarget();
+
                                                         }
-                                                        if (containsValues && mActivity.get().rzlts.get(f).date == rzlt.date && mActivity.get().rzlts.get(f).number == rzlt.number) {
-                                                            contains = true;
-                                                            index = f;
-                                                        }
                                                     }
-
-                                                    if(!contains){
-                                                        mActivity.get().rzlts.add(rzlt);
-                                                        mActivity.get().updateSpinner();
-                                                        mActivity.get().lastSelectedItemPos = -1;
-                                                        mActivity.get().selectValues(mActivity.get().rzlts.size()-1);
-                                                    }
-                                                    else if(contains){
-                                                        mActivity.get().selectValues(index);
-                                                    }
+                                                    mActivity.get().mHandler.obtainMessage(11).sendToTarget();
                                                 }
-                                            }
+                                            }).start();
+
                                         }else {
                                             Toast.makeText(mActivity.get(), R.string.No_download_files_selected,Toast.LENGTH_SHORT).show();
                                         }
@@ -1146,8 +1181,27 @@ public class MainActivity extends AppCompatActivity {
                 case UsbService.DSR_CHANGE:
                     Toast.makeText(mActivity.get(), "DSR_CHANGE", Toast.LENGTH_LONG).show();
                     break;
+                case 10:
+                    if(!contains){
+                        mActivity.get().rzlts.add(rzlt);
+                        mActivity.get().updateSpinner();
+                        mActivity.get().lastSelectedItemPos = -1;
+                        mActivity.get().selectValues(mActivity.get().rzlts.size()-1);
+                    }
+                    else if(contains){
+                        mActivity.get().selectValues(index);
+                    }
+                    break;
+                case 11:
+                    mActivity.get().stopLoadingDialog();
+                    break;
             }
         }
+
+        void updateActivity(){
+
+        }
+
     }
 }
 

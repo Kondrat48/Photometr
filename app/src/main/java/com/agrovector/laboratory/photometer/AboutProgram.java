@@ -9,9 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public class AboutProgram extends AppCompatActivity {
 
     @Override
@@ -22,11 +19,16 @@ public class AboutProgram extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         TextView textView = (TextView) findViewById(R.id.version);
+        TextView otg = (TextView) findViewById(R.id.otg_support);
         try {
             textView.setText(getString(R.string.version_text)+" "+getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0).versionName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
+        String sup;
+        if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST))sup = getString(R.string.yes);
+        else sup = getString(R.string.no);
+        otg.setText(getString(R.string.otg_suport)+" "+sup);
         getSupportActionBar().setTitle(getString(R.string.about_program));
     }
 
