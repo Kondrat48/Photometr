@@ -1189,13 +1189,16 @@
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:background="@color/colorPrimary">
+
                     <TextView
+                        android:id="@+id/textView2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="0"
-                        android:text="@string/kg_at_ha"
                         android:gravity="center"
+                        android:text="@string/kg_at_ha"
                         android:textColor="#FFFFFFFF" />
+
                     <TextView
                         android:layout_width="12sp"
                         android:layout_height="wrap_content"

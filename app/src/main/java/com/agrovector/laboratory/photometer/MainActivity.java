@@ -471,9 +471,9 @@ public class MainActivity extends AppCompatActivity {
                     vpPager.setCurrentItem(pagesHistory.lastElement());
                     pdfLoafed = true;
                 }
-                if (doChangesInPdf())
+                if (doChangesInPdf()){
                     if(tabPdfFragment.logo==null)tabPdfFragment.updateImage();
-                    tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements, tabWatchFragment.getData(), tabWatchFragment.getGraph());
+                    tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements, tabWatchFragment.getData(), tabWatchFragment.getGraph());}
                 title = getString(R.string.enter_PDF_file_name);
                 ending = ".pdf";
                 break;

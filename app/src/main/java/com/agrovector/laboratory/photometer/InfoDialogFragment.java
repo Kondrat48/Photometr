@@ -75,7 +75,7 @@ public class InfoDialogFragment extends DialogFragment {
                             editor.putString(COMPANY_INFO_PREFERENCES, etCompanyInfo.getText().toString());
                             editor.commit();
 
-                            if(!nullImage){
+                           if(!nullImage){
                                 FileOutputStream out = null;
                                 try {
                                     out = new FileOutputStream(new File(getActivity().getFilesDir()+"/temp.png"));

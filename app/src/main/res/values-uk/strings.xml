@@ -36,8 +36,8 @@
     <string name="cell_text_ferum">Fe - залізо</string>
     <string name="cell_text_gumus">Гумус</string>
     <string name="cell_text_jod">I - йод</string>
-    <string name="cell_text_kcl">KCl - хлорид калію</string>
-    <string name="cell_text_ks">KS - сульфат калію</string>
+    <string name="cell_text_kcl">S - сірка</string>
+    <string name="cell_text_ks">K - калій</string>
     <string name="cell_text_magn">Mg - магній</string>
     <string name="cell_text_mangan">Mn - марганець</string>
     <string name="cell_text_mon">Mo - молібден</string>
@@ -158,4 +158,5 @@
     <string name="watch_help_title">Перегляд</string>
     <string name="dont_show">Більше не показувати</string>
     <string name="otg_suport">Підтримка OTG:</string>
+    <string name="loading">Завантаження...</string>
 </resources>

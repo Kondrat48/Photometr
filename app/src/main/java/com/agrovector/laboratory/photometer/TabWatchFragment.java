@@ -207,7 +207,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
     }
 
     public void createGraph(){
-        elements = new String[]{"K1", "N", "P", "KS", "KCl", "K2", "Ca", "Mg", "B", "Cu", "K3", "Zn", "Mn", "Fe", "K4", "Mo", "Co", "J", "K5"};
+        elements = new String[]{"K1", "N", "P", "K", "S", "K2", "Ca", "Mg", "B", "Cu", "K3", "Zn", "Mn", "Fe", "K4", "Mo", "Co", "J", "K5"};
 
         mChart.getDescription().setEnabled(false);
         mChart.getLegend().setEnabled(false);
