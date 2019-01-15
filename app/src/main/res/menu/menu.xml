@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item
+        android:id="@+id/item_connect_wifi"
+        android:icon="@drawable/wifi"
+        android:title="@string/title_connect_wifi"
+        app:showAsAction="always" />
+
     <item android:id="@+id/item_download_file"
         android:icon="@drawable/ic_file_download_black_24px"
         android:title="@string/title_download_file"
@@ -12,6 +18,7 @@
         android:icon="@drawable/ic_save_black_24px"
         android:title="@string/save_file"
         app:showAsAction="always" />
+
     <item
         android:id="@+id/item_open_file"
         android:icon="@drawable/ic_folder_black_24px"

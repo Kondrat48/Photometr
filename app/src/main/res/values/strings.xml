@@ -148,10 +148,10 @@
     <string name="set_as_default">Устоновить по умолчанию</string>
     <string name="restart_now">Чтобы применить изменения, необходимо перезапустить приложение.\nПерезапустить сейчас?</string>
     <string name="Phase_development">Фаза развития</string>
-    <string name="copyright" translatable="false">Copyright © 2017</string>
+    <string name="copyright" translatable="false">Copyright © 2018</string>
     <string name="copyright2" translatable="false">ТОВ \"АПК - Груп\"</string>
     <string name="site">Наш сайт:</string>
-    <string name="site2" translatable="false"><u>agrovector.com.ua</u></string>
+    <string name="site2" translatable="false"><u>http://агровектор.укр</u></string>
     <string name="version_text">Версия</string>
     <string name="developer">Разработчик:</string>
     <string name="developer2"><u>Артем Кондратюк</u></string>
@@ -183,4 +183,7 @@
     <string name="dont_show">Больше не показывать</string>
     <string name="otg_suport">Поддержка OTG:</string>
     <string name="loading">Загрузка...</string>
+    <string name="title_connect_wifi">Подключить к wifi</string>
+    <string name="fale_wifi_connection">Ошибка подключения</string>
+    <string name="warning">Ошибка!</string>
 </resources>

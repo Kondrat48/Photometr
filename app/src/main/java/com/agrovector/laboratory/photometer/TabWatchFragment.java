@@ -116,7 +116,7 @@ public class TabWatchFragment extends Fragment implements OnChartGestureListener
         buttonWatchSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO write method
+                // TODO write method
             }
         });
         for(int i = 0; i<= measuring.length-1; i++) measuring[i] = view.findViewById(idMeasuring[i]);

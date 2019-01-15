@@ -16,6 +16,7 @@ import android.os.IBinder;
 import com.felhr.usbserial.CDCSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class UsbService extends Service {
     public static final int DSR_CHANGE = 2;
     private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
     private static final int BAUD_RATE = 19200;
-    final static private int slotCount = 128;
+    final static public int slotCount = 128;
     public static boolean SERVICE_CONNECTED = false;
     public Slot[] slot;
     private IBinder binder = new UsbBinder();
@@ -55,30 +56,32 @@ public class UsbService extends Service {
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context arg0, Intent arg1) {
-            if (arg1.getAction().equals(ACTION_USB_PERMISSION)) {
-                boolean granted = arg1.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
-                if (granted) // User accepted our USB connection. Try to open the device as a serial port
-                {
-                    Intent intent = new Intent(ACTION_USB_PERMISSION_GRANTED);
+            synchronized (this){
+                if (arg1.getAction().equals(ACTION_USB_PERMISSION)) {
+                    boolean granted = arg1.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
+                    if (granted) // User accepted our USB connection. Try to open the device as a serial port
+                    {
+                        Intent intent = new Intent(ACTION_USB_PERMISSION_GRANTED);
+                        arg0.sendBroadcast(intent);
+                        connection = usbManager.openDevice(device);
+                        new ConnectionThread().start();
+                    } else // User not accepted our USB connection. Send an Intent to the Main Activity
+                    {
+                        Intent intent = new Intent(ACTION_USB_PERMISSION_NOT_GRANTED);
+                        arg0.sendBroadcast(intent);
+                    }
+                } else if (arg1.getAction().equals(ACTION_USB_ATTACHED)) {
+                    if (!serialPortConnected)
+                        findSerialPortDevice(); // A USB device has been attached. Try to open it as a Serial port
+                } else if (arg1.getAction().equals(ACTION_USB_DETACHED)) {
+                    // Usb device was disconnected. send an intent to the Main Activity
+                    Intent intent = new Intent(ACTION_USB_DISCONNECTED);
                     arg0.sendBroadcast(intent);
-                    connection = usbManager.openDevice(device);
-                    new ConnectionThread().start();
-                } else // User not accepted our USB connection. Send an Intent to the Main Activity
-                {
-                    Intent intent = new Intent(ACTION_USB_PERMISSION_NOT_GRANTED);
-                    arg0.sendBroadcast(intent);
+                    if (serialPortConnected) {
+                        serialPort.close();
+                    }
+                    serialPortConnected = false;
                 }
-            } else if (arg1.getAction().equals(ACTION_USB_ATTACHED)) {
-                if (!serialPortConnected)
-                    findSerialPortDevice(); // A USB device has been attached. Try to open it as a Serial port
-            } else if (arg1.getAction().equals(ACTION_USB_DETACHED)) {
-                // Usb device was disconnected. send an intent to the Main Activity
-                Intent intent = new Intent(ACTION_USB_DISCONNECTED);
-                arg0.sendBroadcast(intent);
-                if (serialPortConnected) {
-                    serialPort.close();
-                }
-                serialPortConnected = false;
             }
         }
     };
@@ -87,14 +90,16 @@ public class UsbService extends Service {
     private long rzltDate;
     private byte[] readResult = null;
     /*
-         *  Data received from serial port will be received here. Just populate onReceivedData with your code
-         *  In this particular example. byte stream is converted to String and send to UI thread to
-         *  be treated there.
-         */
+     *  Data received from serial port will be received here. Just populate onReceivedData with your code
+     *  In this particular example. byte stream is converted to String and send to UI thread to
+     *  be treated there.
+     */
     private UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
         @Override
         public void onReceivedData(byte[] arg0) {
-            readResult = arg0;
+            synchronized (this){
+                readResult = arg0;
+            }
 
 //            try {
 //                String data = new String(arg0, "UTF-8");
@@ -228,128 +233,139 @@ public class UsbService extends Service {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if(readResult!=null)
+        if (readResult != null)
             return (readResult[0] == b);
         else return setByte(b);
     }
 
     private boolean serialRW(int adr) throws InterruptedException {
-        byte end = (byte) adr;
-        byte start = (byte) (adr >> 8);
-        int i, cmCount, rzCount;
-        String error;
-        boolean result = false;
-        rzCount = 0;
-        do {
-            rzCount++;
-            error = "";
-            if (!setByte((byte) (char) 0x55)) {
-                error = "Ошибка чтения 1";
-                Thread.sleep(20);
-                continue;
-            }
-            if (!setByte((byte) (char) 0x00)) {
-                error = "Ошибка чтения 2";
-                Thread.sleep(20);
-                continue;
-            }
-            if (!setByte((byte) (char) end)) {
-                error = "Ошибка чтения 3";
-                Thread.sleep(20);
-                continue;
-            }
-            if (!setByte((byte) (char) start)) {
-                error = "Ошибка чтения 4";
-                Thread.sleep(20);
-                continue;
-            }
-
-            if (error.equals("")) {
-                serialPort.write(new byte[]{(byte) (char) 0xAA});
-                Thread.sleep(200);
-                for (int t = 0; t < readResult.length; t++) {
-                    frez[t] = readResult[t];
+        synchronized (this){
+            byte end = (byte) adr;
+            byte start = (byte) (adr >> 8);
+            int i, cmCount, rzCount;
+            String error;
+            boolean result = false;
+            rzCount = 0;
+            do {
+                rzCount++;
+                error = "";
+                if (!setByte((byte) (char) 0x55)) {
+                    error = "Ошибка чтения 1";
+                    Thread.sleep(20);
+                    continue;
                 }
-                result = true;
-            }
+                if (!setByte((byte) (char) 0x00)) {
+                    error = "Ошибка чтения 2";
+                    Thread.sleep(20);
+                    continue;
+                }
+                if (!setByte((byte) (char) end)) {
+                    error = "Ошибка чтения 3";
+                    Thread.sleep(20);
+                    continue;
+                }
+                if (!setByte((byte) (char) start)) {
+                    error = "Ошибка чтения 4";
+                    Thread.sleep(20);
+                    continue;
+                }
 
-        } while (!error.equals("") || rzCount > 4);
-        return result;
+                if (error.equals("")) {
+                    serialPort.write(new byte[]{(byte) (char) 0xAA});
+                    Thread.sleep(200);
+                    for (int t = 0; t < readResult.length; t++) {
+                        frez[t] = readResult[t];
+                    }
+                    result = true;
+                }
+
+            } while (!error.equals("") || rzCount > 4);
+            return result;
+        }
     }
 
     public boolean readContent() {
-        boolean result = false;
-        int j, rpt = 0, blockCount = slotCount * 3 / 64, adr;
-        byte[] btArr = new byte[slotCount * 3 + 1];
-        String err = "";
-        do {
-            rpt++;
-            try {
-                for (j = 0; j < blockCount; j++) {
-                    adr = 4 + j * 64;
+        synchronized (this){
+            boolean result = false;
+            int j, rpt = 0, blockCount = slotCount * 3 / 64, adr;
+            byte[] btArr = new byte[slotCount * 3 + 1];
+            String err = "";
+            do {
+                rpt++;
+                try {
+                    for (j = 0; j < blockCount; j++) {
+                        adr = 4 + j * 64;
 
-                    if (!serialRW(adr)) err = "ошибка чтения содержания";
+                        if (!serialRW(adr)) err = "ошибка чтения содержания";
 
-                    for (int i = 0; i < 64; i++) btArr[i + j * 64] = frez[i];
+                        for (int i = 0; i < 64; i++) btArr[i + j * 64] = frez[i];
+                    }
+                    for (int i = 0; i < slot.length; i++) {
+                        int a = i * 3, b = a + 1, c = b + 1;
+                        slot[i] = new Slot();
+                        slot[i].number = (int) btArr[b] << 8 + btArr[a];
+                        slot[i].enabled = btArr[c] == 1;
+                    }
+                    result = true;
+
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                for (int i = 0; i < slot.length; i++) {
-                    int a = i * 3, b = a + 1, c = b + 1;
-                    slot[i] = new Slot();
-                    slot[i].number = (int) btArr[b] << 8 + btArr[a];
-                    slot[i].enabled = btArr[c] == 1;
-                }
-                result = true;
-
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } while (rpt > 1 || !result);
-        if (mHandler != null) mHandler.obtainMessage(MESSAGE_READ_CONTENT, slot).sendToTarget();
-        return result;
+            } while (rpt > 1 || !result);
+            if (mHandler != null) mHandler.obtainMessage(MESSAGE_READ_CONTENT, slot).sendToTarget();
+            return result;
+        }
     }
 
     @SuppressWarnings("deprecation")
     public boolean readSlot(int slotNumb) {
-        boolean result = false;
-        int i, adr = 388 + slotNumb * 86;
-        int[] arrBefore = new int[19], arrAfter = new int[19];
-        byte[] btArr = new byte[86];
-        String err;
-        try {
-            if (!serialRW(adr)) err = "ошибка чтения данных";
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        for (i = 0; i < 64; i++) btArr[i] = frez[i];
-        adr += 64;
-        try {
-            if (!serialRW(adr)) err = "ошибка чтения данных";
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        for (i = 64; i < 86; i++) btArr[i] = frez[i - 64];
-        for (i = 0; i < 19; i++) {
-            arrBefore[i] = (btArr[i * 2 + 1] << 8) + btArr[i * 2];
-            arrAfter[i] = (btArr[i * 2 + 1 + 38] << 8) + btArr[i * 2 + 38];
-        }
-        arrValues = new int[19];
-        for (i = 0; i < 19; i++){
-            int value;
-            if (arrAfter[i] > arrBefore[i]) {
-                value = arrAfter[i] - arrBefore[i];
-                if(value>256)value-=256;
-                arrValues[i]=value;
+        synchronized (this){
+            boolean result = false;
+            int i, adr = 388 + slotNumb * 86;
+            int[] arrBefore = new int[19], arrAfter = new int[19];
+            byte[] btArr = new byte[86];
+            String err;
+                try {
+                    if (!serialRW(adr)) err = "ошибка чтения данных";
+                } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            else arrValues[i] = 0;
-        }
+            for (i = 0; i < 64; i++) btArr[i] = frez[i];
+            adr += 64;
+            try {
+                if (!serialRW(adr)) err = "ошибка чтения данных";
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            for (i = 64; i < 86; i++) btArr[i] = frez[i - 64];
+            for (i = 0; i < 19; i++) {
+                arrBefore[i] = (btArr[i * 2 + 1] << 8) + btArr[i * 2];
+                arrAfter[i] = (btArr[i * 2 + 1 + 38] << 8) + btArr[i * 2 + 38];
+            }
+            arrValues = new int[19];
+            for (i = 0; i < 19; i++) {
+                int value;
+                if (arrAfter[i] > arrBefore[i]) {
+                    value = arrAfter[i] - arrBefore[i];
+                    if (value > 256) value -= 256;
+                    arrValues[i] = value;
+                } else arrValues[i] = 0;
+            }
 
-        rzltDate = Date.UTC(100+Integer.parseInt(Integer.toHexString(btArr[81])), Integer.parseInt(Integer.toHexString(btArr[80])), Integer.parseInt(Integer.toHexString(btArr[79])), Integer.parseInt(Integer.toHexString(btArr[78])), Integer.parseInt(Integer.toHexString(btArr[77])), Integer.parseInt(Integer.toHexString(btArr[76])));
-        rzlt = new Rzlt();
-        rzlt.values = arrValues;
-        rzlt.date = rzltDate;
-        result = true;
-        return result;
+            rzltDate = Date.UTC(100 + Integer.parseInt(Integer.toHexString(btArr[81])),
+                    Integer.parseInt(Integer.toHexString(btArr[80])),
+                    Integer.parseInt(Integer.toHexString(btArr[79])),
+                    Integer.parseInt(Integer.toHexString(btArr[78])),
+                    Integer.parseInt(Integer.toHexString(btArr[77])),
+                    Integer.parseInt(Integer.toHexString(btArr[76])));
+            rzlt = new Rzlt();
+            rzlt.values =  Arrays.copyOf(arrValues,arrValues.length);
+            rzlt.date = rzltDate;
+            rzlt.number = slotNumb;
+            result = true;
+            return result;
+        }
     }
 
     public Rzlt getResult() {
@@ -414,7 +430,7 @@ public class UsbService extends Service {
         }
     }
 
-    public class Slot {
+    public static class Slot {
         boolean enabled;
         int number;
     }
@@ -424,6 +440,11 @@ public class UsbService extends Service {
         int[] values;
         long date;
         boolean isSaved = false;
+
+        @Override
+        public String toString() {
+            return number+", "+ Arrays.toString(values)+", "+date+", "+isSaved;
+        }
     }
 }
 

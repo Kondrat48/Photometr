@@ -33,7 +33,7 @@ public class AboutProgram extends AppCompatActivity {
     }
 
     public void goToSite(View view) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://agrovector.com.ua/"));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.site2)));
         startActivity(browserIntent);
     }
 
