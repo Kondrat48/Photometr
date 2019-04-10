@@ -12,8 +12,8 @@ android {
         applicationId "com.agrovector.laboratory.photometer"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 10
-        versionName "2.0.0"
+        versionCode 11
+        versionName "2.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

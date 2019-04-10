@@ -164,9 +164,16 @@ public class TcpClient {
             for (i = 64; i < 86; i++) btArr[i] = frez[i - 64];
             Log.i("DT TOTL RECVD BYTE ARR", Utils.encodeHexString(btArr));
             for (i = 0; i < 19; i++) {
+                int arg1 = (btArr[i * 2 + 1] << 8);
+                int arg2 = btArr[i * 2];
+                Log.i("DT BT AR BEF A1 "+i,Integer.toString(arg1));
+                Log.i("DT BT AR BEF A2 "+i,Integer.toString(arg2));
+                Log.i("DT BT AR SUM"+i,Integer.toString(arg1+arg2));
                 arrBefore[i] = (btArr[i * 2 + 1] << 8) + btArr[i * 2];
                 arrAfter[i] = (btArr[i * 2 + 1 + 38] << 8) + btArr[i * 2 + 38];
             }
+            Log.i("DT BT ARR BEFORE",Arrays.toString(arrBefore));
+            Log.i("DT BT ARR AFTER",Arrays.toString(arrAfter));
             arrValues = new int[19];
             for (i = 0; i < 19; i++) {
                 int value;
