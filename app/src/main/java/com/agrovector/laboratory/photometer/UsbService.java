@@ -85,7 +85,7 @@ public class UsbService extends Service {
             }
         }
     };
-    private byte[] frez = new byte[71];
+    private int[] frez = new int[71];
     private int[] arrValues;
     private long rzltDate;
     private byte[] readResult = null;
@@ -274,7 +274,7 @@ public class UsbService extends Service {
                     serialPort.write(new byte[]{(byte) (char) 0xAA});
                     Thread.sleep(200);
                     for (int t = 0; t < readResult.length; t++) {
-                        frez[t] = readResult[t];
+                        frez[t] = (int) readResult[t];
                     }
                     result = true;
                 }
@@ -288,7 +288,7 @@ public class UsbService extends Service {
         synchronized (this){
             boolean result = false;
             int j, rpt = 0, blockCount = slotCount * 3 / 64, adr;
-            byte[] btArr = new byte[slotCount * 3 + 1];
+            int[] btArr = new int[slotCount * 3 + 1];
             String err = "";
             do {
                 rpt++;
@@ -324,7 +324,7 @@ public class UsbService extends Service {
             boolean result = false;
             int i, adr = 388 + slotNumb * 86;
             int[] arrBefore = new int[19], arrAfter = new int[19];
-            byte[] btArr = new byte[86];
+            int[] btArr = new int[86];
             String err;
                 try {
                     if (!serialRW(adr)) err = "ошибка чтения данных";
@@ -339,19 +339,8 @@ public class UsbService extends Service {
                 e.printStackTrace();
             }
             for (i = 64; i < 86; i++) btArr[i] = frez[i - 64];
-            for (i = 0; i < 19; i++) {
-                arrBefore[i] = (btArr[i * 2 + 1] << 8) + btArr[i * 2];
-                arrAfter[i] = (btArr[i * 2 + 1 + 38] << 8) + btArr[i * 2 + 38];
-            }
-            arrValues = new int[19];
-            for (i = 0; i < 19; i++) {
-                int value;
-                if (arrAfter[i] > arrBefore[i]) {
-                    value = arrAfter[i] - arrBefore[i];
-                    if (value > 256) value -= 256;
-                    arrValues[i] = value;
-                } else arrValues[i] = 0;
-            }
+
+            arrValues = Utils.rowToData(btArr);
 
             rzltDate = Date.UTC(100 + Integer.parseInt(Integer.toHexString(btArr[81])),
                     Integer.parseInt(Integer.toHexString(btArr[80])),

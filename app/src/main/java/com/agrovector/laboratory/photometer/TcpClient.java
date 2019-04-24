@@ -80,7 +80,7 @@ public class TcpClient {
                             mStreamOut.write(byteArray, start, len);
                         }
                         mStreamOut.flush();
-                        Log.i("DT SEND BYTE ARRAY", Utils.encodeHexString(byteArray));
+                        //Log.i("DT SEND BYTE ARRAY", Utils.encodeHexString(byteArray));
 
 
                     }
@@ -116,7 +116,7 @@ public class TcpClient {
                             e.printStackTrace();
                         }
                         for (int i = 0; i < 64; i++) btArr[i + j * 64] = frez[i];
-                        Log.i("DT RECVD-PROC BYTE ARR", Utils.encodeHexString(frez));
+                        //Log.i("DT RECVD-PROC BYTE ARR", Utils.encodeHexString(frez));
                     }
                     for (int i = 0; i < slot.length; i++) {
                         int a = i * 3, b = a + 1, c = b + 1;
@@ -142,7 +142,7 @@ public class TcpClient {
             Log.i("DT START READ SLOT", String.valueOf(slotNumb));
             int i, adr = 388 + slotNumb * 86;
             int[] arrBefore = new int[19], arrAfter = new int[19];
-            byte[] btArr = new byte[86];
+            int[] btArr = new int[86];
             String err;
             sendBytes(new byte[]{(byte) (char) 0x55, (byte) (char) 0x00, (byte) adr, (byte) (adr >> 8), (byte) (char) 0xAA});
             Log.i("DT SEND BYTE ARRAY", Utils.byteToHex((byte) adr));
@@ -152,7 +152,7 @@ public class TcpClient {
                 e.printStackTrace();
             }
             for (i = 0; i < 64; i++) btArr[i] = frez[i];
-            Log.i("DT RESVD-PRC BYTE ARRAY", Utils.encodeHexString(frez));
+            //Log.i("DT RESVD-PRC BYTE ARRAY", Utils.encodeHexString(frez));
             adr += 64;
             sendBytes(new byte[]{(byte) (char) 0x55, (byte) (char) 0x00, (byte) adr, (byte) (adr >> 8), (byte) (char) 0xAA});
             Log.i("DT SEND BYTE ARRAY", Utils.byteToHex((byte) adr));
@@ -162,7 +162,7 @@ public class TcpClient {
                 e.printStackTrace();
             }
             for (i = 64; i < 86; i++) btArr[i] = frez[i - 64];
-            Log.i("DT TOTL RECVD BYTE ARR", Utils.encodeHexString(btArr));
+            //Log.i("DT TOTL RECVD BYTE ARR", Utils.encodeHexString(btArr));
             for (i = 0; i < 19; i++) {
                 int arg1 = (btArr[i * 2 + 1] << 8);
                 int arg2 = btArr[i * 2];
@@ -174,15 +174,7 @@ public class TcpClient {
             }
             Log.i("DT BT ARR BEFORE",Arrays.toString(arrBefore));
             Log.i("DT BT ARR AFTER",Arrays.toString(arrAfter));
-            arrValues = new int[19];
-            for (i = 0; i < 19; i++) {
-                int value;
-                if (arrAfter[i] > arrBefore[i]) {
-                    value = arrAfter[i] - arrBefore[i];
-                    if (value > 256) value -= 256;
-                    arrValues[i] = value;
-                } else arrValues[i] = 0;
-            }
+            arrValues = Utils.rowToData(btArr);
 
             rzltDate = Date.UTC(100 + Integer.parseInt(Integer.toHexString(btArr[81])),
                     Integer.parseInt(Integer.toHexString(btArr[80])),
