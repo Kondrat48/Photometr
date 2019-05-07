@@ -17,9 +17,11 @@ import com.felhr.usbserial.CDCSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class UsbService extends Service {
 
@@ -342,13 +344,17 @@ public class UsbService extends Service {
 
             arrValues = Utils.rowToData(btArr);
 
-            rzltDate = Date.UTC(100 + Integer.parseInt(Integer.toHexString(btArr[81])),
-                    Integer.parseInt(Integer.toHexString(btArr[80])),
+            Calendar cal = Calendar.getInstance();
+            cal.set(
+                    2000+Integer.parseInt(Integer.toHexString(btArr[81])),
+                    Integer.parseInt(Integer.toHexString(btArr[80]))-1,
                     Integer.parseInt(Integer.toHexString(btArr[79])),
                     Integer.parseInt(Integer.toHexString(btArr[78])),
                     Integer.parseInt(Integer.toHexString(btArr[77])),
-                    Integer.parseInt(Integer.toHexString(btArr[76])));
-            rzlt = new Rzlt();
+                    Integer.parseInt(Integer.toHexString(btArr[76]))
+            );
+            rzltDate = cal.getTimeInMillis();
+
             rzlt.values =  Arrays.copyOf(arrValues,arrValues.length);
             rzlt.date = rzltDate;
             rzlt.number = slotNumb;

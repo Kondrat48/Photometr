@@ -20,6 +20,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -41,7 +42,6 @@ import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.text.Layout;
 import android.text.TextPaint;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,8 +53,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-import com.felhr.usbserial.UsbSerialDevice;
 
 import com.agrovector.laboratory.photometer.UsbService.Rzlt;
 import com.github.amlcurran.showcaseview.ShowcaseView;
@@ -72,6 +70,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -519,7 +518,7 @@ public class MainActivity extends AppCompatActivity {
                 title = getString(R.string.enter_PHT_file_name);
                 ending = ".pht";
                 edt.setText(new DecimalFormat("0000").format(rzlts.get(pos).number) + "_" +
-                        new SimpleDateFormat("dd-MM-yyyy_HH;mm;ss").format(new Date(rzlts.get(pos).date)) +
+                        new SimpleDateFormat("dd-MM-yyyy_HH;mm;ss").format(rzlts.get(pos).date) +
                         ending);
                 break;
         }
@@ -573,7 +572,7 @@ public class MainActivity extends AppCompatActivity {
         StringBuilder builder = new StringBuilder();
         while (i <= 114) {
             if (i == 0) {
-                temp = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(pos).date)) + '\n';
+                temp = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(rzlts.get(pos).date) + '\n';
                 builder.append(temp);
             } else if (i >= 1 && i <= 95) builder.append('\n');
             else if (i >= 96 && i <= 114) {
@@ -696,7 +695,6 @@ public class MainActivity extends AppCompatActivity {
                         tabPdfFragment.update(tabDocumentSettingsFragment.getData(), dateMeasurements,
                                 tabWatchFragment.getData(), tabWatchFragment.getGraph());
                     }
-
                 }
                 break;
             case 78:
@@ -740,8 +738,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void rememberDefaultWifi() {    //TODO переделать
         WifiManager manager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if (manager.isWifiEnabled()) {
-            WifiInfo info = manager.getConnectionInfo();
+        WifiInfo info = manager.getConnectionInfo();
+        if (manager.isWifiEnabled() &&
+                info.getSupplicantState()!=SupplicantState.DISCONNECTED
+        ) {
             WifiConfiguration wifiConfiguration = new WifiConfiguration();
             wifiConfiguration.SSID = info.getSSID();
             this.defaultWifiConfiguration = wifiConfiguration;
@@ -750,7 +750,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void resetDefaultWifi() {
         WifiManager manager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        int removeNetworkId = manager.getConnectionInfo().getNetworkId();
+        WifiInfo removeNetwork = manager.getConnectionInfo();
         if (mTcpClient != null) mTcpClient.stopClient();
         if (defaultWifiStatment) {
             int netId = defaultWifiConfiguration.networkId;/*manager.addNetwork(defaultWifiConfiguration);*/
@@ -759,13 +759,14 @@ public class MainActivity extends AppCompatActivity {
             manager.reconnect();
 
             if (manager.getConnectionInfo().getSSID().equals("PF-014-02")) {
-                manager.removeNetwork(removeNetworkId);
+                manager.removeNetwork(removeNetwork.getNetworkId());
+                manager.saveConfiguration();
             }
 
 
         } else {
             if (manager.getConnectionInfo().getSSID().equals("PF-014-02")) {
-                manager.removeNetwork(removeNetworkId);
+                manager.removeNetwork(removeNetwork.getNetworkId());
             }
             manager.setWifiEnabled(false);
         }
@@ -1015,7 +1016,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void changeWifiConnectionStatement(final MenuItem item) {
-        if(isLocationPermissionGranted()) {
+        if(isWifiPermissionsGranted()) {
             rememberDefaultWifi();
             if (!wifiServiceActive) {
                 //TODO activate wifi service
@@ -1035,26 +1036,23 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                 }
-                if (wifiManager.getConnectionInfo().getSSID().equals("PF-014-02")) {
+                if (wifiManager.getConnectionInfo().getSSID().equals("\"PF-014-02\"")) {
                     new ConnectTask().execute("");
                     wifiServiceActive = true;
                     menu.findItem(R.id.item_download_file).setVisible(true);
                     item.setIcon(getResources().getDrawable(R.drawable.wifi_connected));
                 } else if (contains) {
                     WifiConfiguration wifiConfiguration = new WifiConfiguration();
-                    wifiConfiguration.SSID = "\"" + "PF-014-02" + "\"";
-                    // This string should have double quotes included while adding.
+                    wifiConfiguration.SSID = "\"PF-014-02\"";
                     wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                    // This is for a public network which dont have any authentication
 
                     int netId = wifiManager.addNetwork(wifiConfiguration);
                     List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
                     for (WifiConfiguration i : list) {
-                        if (i.SSID != null && i.SSID.equals("\"" + "PF-014-02" + "\"")) {
+                        if (i.SSID != null && i.SSID.equals("\"PF-014-02\"")) {
                             wifiManager.disconnect();
                             wifiManager.enableNetwork(i.networkId, true);
                             wifiManager.reconnect();
-
                             break;
                         }
                     }
@@ -1197,8 +1195,9 @@ public class MainActivity extends AppCompatActivity {
             }
         } else return true;
     }
-    public boolean isLocationPermissionGranted() {
+    public boolean isWifiPermissionsGranted() {
         if(Build.VERSION.SDK_INT >= 23) {
+            boolean result = false;
             if(checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 return true;
@@ -1219,7 +1218,7 @@ public class MainActivity extends AppCompatActivity {
         for (int t = 0; t < rzlts.size(); t++) {
             if (!rzlts.get(t).isSaved)
                 list[t] = new DecimalFormat("0000").format(rzlts.get(t).number) + " - " +
-                        new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(t).date));
+                        new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(rzlts.get(t).date);
         }
         if (list.length > 0) {
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
@@ -1344,7 +1343,7 @@ public class MainActivity extends AppCompatActivity {
         String temp;
         for (int i = 0; i < rzlts.size(); i++) {
             temp = new DecimalFormat("0000").format(rzlts.get(i).number) + " - " +
-                    new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date(rzlts.get(i).date));
+                    new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(rzlts.get(i).date);
             dates.add(temp);
         }
         tabWatchFragment.updateSpinner(dates, MainActivity.this);

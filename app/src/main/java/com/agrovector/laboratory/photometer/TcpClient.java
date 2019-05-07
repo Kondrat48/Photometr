@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class TcpClient {
 
@@ -168,20 +170,23 @@ public class TcpClient {
                 int arg2 = btArr[i * 2];
                 Log.i("DT BT AR BEF A1 "+i,Integer.toString(arg1));
                 Log.i("DT BT AR BEF A2 "+i,Integer.toString(arg2));
-                Log.i("DT BT AR SUM"+i,Integer.toString(arg1+arg2));
+                Log.i("DT BT AR SUM" + i,Integer.toString(arg1+arg2));
                 arrBefore[i] = (btArr[i * 2 + 1] << 8) + btArr[i * 2];
                 arrAfter[i] = (btArr[i * 2 + 1 + 38] << 8) + btArr[i * 2 + 38];
             }
             Log.i("DT BT ARR BEFORE",Arrays.toString(arrBefore));
             Log.i("DT BT ARR AFTER",Arrays.toString(arrAfter));
             arrValues = Utils.rowToData(btArr);
-
-            rzltDate = Date.UTC(100 + Integer.parseInt(Integer.toHexString(btArr[81])),
-                    Integer.parseInt(Integer.toHexString(btArr[80])),
+            Calendar cal = Calendar.getInstance();
+            cal.set(
+                 2000+Integer.parseInt(Integer.toHexString(btArr[81])),
+                    Integer.parseInt(Integer.toHexString(btArr[80]))-1,
                     Integer.parseInt(Integer.toHexString(btArr[79])),
                     Integer.parseInt(Integer.toHexString(btArr[78])),
                     Integer.parseInt(Integer.toHexString(btArr[77])),
-                    Integer.parseInt(Integer.toHexString(btArr[76])));
+                    Integer.parseInt(Integer.toHexString(btArr[76]))
+            );
+            rzltDate = cal.getTimeInMillis();
             rzlt = new UsbService.Rzlt();
             rzlt.values = Arrays.copyOf(arrValues,arrValues.length);
             rzlt.date = rzltDate;
