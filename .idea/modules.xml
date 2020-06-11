@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Android-Photometr.iml" filepath="$PROJECT_DIR$/.idea/modules/Android-Photometr.iml" group="Photometr" />
       <module fileurl="file://$PROJECT_DIR$/Photometr.iml" filepath="$PROJECT_DIR$/Photometr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Photometr-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Photometr-app.iml" group="Photometr/app" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

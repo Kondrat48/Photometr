@@ -740,7 +740,7 @@ public class MainActivity extends AppCompatActivity {
         WifiManager manager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = manager.getConnectionInfo();
         if (manager.isWifiEnabled() &&
-                info.getSupplicantState()!=SupplicantState.DISCONNECTED
+                info.getSupplicantState() != SupplicantState.DISCONNECTED
         ) {
             WifiConfiguration wifiConfiguration = new WifiConfiguration();
             wifiConfiguration.SSID = info.getSSID();
@@ -793,7 +793,6 @@ public class MainActivity extends AppCompatActivity {
 
             return null;
         }
-
 
 
         @Override
@@ -1016,94 +1015,98 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void changeWifiConnectionStatement(final MenuItem item) {
-        if(isWifiPermissionsGranted()) {
+        if (isWifiPermissionsGranted()) {
             rememberDefaultWifi();
             if (!wifiServiceActive) {
-                //TODO activate wifi service
-                WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                if (!wifiManager.isWifiEnabled()) {
-                    wifiManager.setWifiEnabled(true);
-                }
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-                wifiManager.startScan();
-                List<ScanResult> results = wifiManager.getScanResults();
-                boolean contains = false;
-                String ssid;
-
-                for (int i = 0; i < results.size(); i++) {
-                    if (results.get(i).SSID.equals("PF-014-02")) {
-                        contains = true;
-                        break;
+                    WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                    if (!wifiManager.isWifiEnabled()) {
+                        wifiManager.setWifiEnabled(true);
                     }
-                }
-                if (wifiManager.getConnectionInfo().getSSID().equals("\"PF-014-02\"")) {
-                    new ConnectTask().execute("");
-                    wifiServiceActive = true;
-                    menu.findItem(R.id.item_download_file).setVisible(true);
-                    item.setIcon(getResources().getDrawable(R.drawable.wifi_connected));
-                } else if (contains) {
-                    WifiConfiguration wifiConfiguration = new WifiConfiguration();
-                    wifiConfiguration.SSID = "\"PF-014-02\"";
-                    wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
 
-                    int netId = wifiManager.addNetwork(wifiConfiguration);
-                    List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
-                    for (WifiConfiguration i : list) {
-                        if (i.SSID != null && i.SSID.equals("\"PF-014-02\"")) {
-                            wifiManager.disconnect();
-                            wifiManager.enableNetwork(i.networkId, true);
-                            wifiManager.reconnect();
+                    wifiManager.startScan();
+                    List<ScanResult> results = wifiManager.getScanResults();
+                    boolean contains = false;
+                    String ssid;
+
+                    for (int i = 0; i < results.size(); i++) {
+                        if (results.get(i).SSID.equals("PF-014-02")) {
+                            contains = true;
                             break;
                         }
                     }
+                    if (wifiManager.getConnectionInfo().getSSID().equals("\"PF-014-02\"")) {
+                        new ConnectTask().execute("");
+                        wifiServiceActive = true;
+                        menu.findItem(R.id.item_download_file).setVisible(true);
+                        item.setIcon(getResources().getDrawable(R.drawable.wifi_connected));
+                    } else if (contains) {
+                        WifiConfiguration wifiConfiguration = new WifiConfiguration();
+                        wifiConfiguration.SSID = "\"PF-014-02\"";
+                        wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
 
-                    Thread thread = new Thread() {
-                        @Override
-                        public void run() {
-                            boolean connected = false;
-                            while (!connected) {
+//                    int netId = wifiManager.addNetwork(wifiConfiguration);
+
+                        List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+                        for (WifiConfiguration i : list) {
+                            if (i.SSID != null && i.SSID.equals("\"PF-014-02\"")) {
+                                wifiManager.disconnect();
+                                wifiManager.enableNetwork(i.networkId, true);
+                                wifiManager.reconnect();
+                                break;
+                            }
+                        }
+
+                        Thread thread = new Thread() {
+                            @Override
+                            public void run() {
+                                boolean connected = false;
+                                while (!connected) {
+                                    try {
+                                        sleep(500);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    connected = ((WifiManager) getApplicationContext()
+                                            .getSystemService(Context.WIFI_SERVICE)).getConnectionInfo()
+                                            .getSSID().equals("\"PF-014-02\"");
+                                }
                                 try {
-                                    sleep(500);
+                                    sleep(2000);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                                connected = ((WifiManager) getApplicationContext()
-                                        .getSystemService(Context.WIFI_SERVICE)).getConnectionInfo()
-                                        .getSSID().equals("\"PF-014-02\"");
-                            }
-                            try {
-                                sleep(2000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            new ConnectTask().execute("");
-                            wifiServiceActive = true;
-                            menu.findItem(R.id.item_download_file).setVisible(true);
-                            item.setIcon(getResources().getDrawable(R.drawable.wifi_connected));
+                                new ConnectTask().execute("");
+                                wifiServiceActive = true;
+                                menu.findItem(R.id.item_download_file).setVisible(true);
+                                item.setIcon(getResources().getDrawable(R.drawable.wifi_connected));
 
-                        }
-                    };
-                    thread.run();
-                } else {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage(R.string.fale_wifi_connection)
-                            .setTitle(R.string.warning)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    resetDefaultWifi();
-                                }
-                            })
-                            .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                                @Override
-                                public void onCancel(DialogInterface dialog) {
-                                    resetDefaultWifi();
-                                }
-                            })
-                            .show();
+                            }
+                        };
+                        thread.run();
+                    } else {
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setMessage(R.string.fale_wifi_connection)
+                                .setTitle(R.string.warning)
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        resetDefaultWifi();
+                                    }
+                                })
+                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        resetDefaultWifi();
+                                    }
+                                })
+                                .show();
 
+                    }
+
+                    return;
                 }
-
 
             } else {
                 resetDefaultWifi();
